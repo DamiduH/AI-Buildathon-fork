@@ -17,8 +17,7 @@ export default function About({ techContainerRef }) {
                 color: 'var(--text-secondary)',
                 fontSize: '1.1rem',
                 lineHeight: 1.8,
-                textAlign: 'justify',
-                textJustify: 'inter-word',
+                textAlign: 'center',
                 maxWidth: 1100,
                 margin: '0 auto'
               }}

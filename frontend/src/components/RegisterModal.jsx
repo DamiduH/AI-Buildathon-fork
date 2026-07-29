@@ -391,29 +391,29 @@ export default function RegisterModal() {
                       </div>
                       <div className="form-group">
                         <input
-                          type="email"
-                          className={inputClass(`member-${index}-email`)}
-                          placeholder={`Member ${index + 2} Email Address`}
-                          value={member.email || ''}
-                          onChange={handleMemberChange(index, 'email')}
-                          onBlur={markTouched(`member-${index}-email`)}
+                          type="text"
+                          className={inputClass(`member-${index}-student_id`)}
+                          placeholder={`Member ${index + 2} Student ID`}
+                          value={member.student_id}
+                          onChange={handleMemberChange(index, 'student_id')}
+                          onBlur={markTouched(`member-${index}-student_id`)}
                         />
-                        {fieldError(`member-${index}-email`) && (
-                          <span className="field-error">{fieldError(`member-${index}-email`)}</span>
+                        {fieldError(`member-${index}-student_id`) && (
+                          <span className="field-error">{fieldError(`member-${index}-student_id`)}</span>
                         )}
                       </div>
                     </div>
                     <div className="form-group">
                       <input
-                        type="text"
-                        className={inputClass(`member-${index}-student_id`)}
-                        placeholder={`Member ${index + 2} Student ID`}
-                        value={member.student_id}
-                        onChange={handleMemberChange(index, 'student_id')}
-                        onBlur={markTouched(`member-${index}-student_id`)}
+                        type="email"
+                        className={inputClass(`member-${index}-email`)}
+                        placeholder={`Member ${index + 2} Email Address`}
+                        value={member.email || ''}
+                        onChange={handleMemberChange(index, 'email')}
+                        onBlur={markTouched(`member-${index}-email`)}
                       />
-                      {fieldError(`member-${index}-student_id`) && (
-                        <span className="field-error">{fieldError(`member-${index}-student_id`)}</span>
+                      {fieldError(`member-${index}-email`) && (
+                        <span className="field-error">{fieldError(`member-${index}-email`)}</span>
                       )}
                     </div>
                     <div className="form-row">
