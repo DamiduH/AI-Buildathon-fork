@@ -522,7 +522,7 @@ header.scrolled {
 
 /* Quick Facts Grid Section */
 .quick-facts {
-  padding: 8rem 5% 0;
+  padding: 8rem 5% 2rem;
   position: relative;
 }
 
@@ -679,7 +679,7 @@ header.scrolled {
 
 /* Toolkit Section styling (Qoder, QoderWork, MuleRun) */
 .toolkit {
-  padding: 0 5% 8rem;
+  padding: 6rem 5% 8rem;
   background: linear-gradient(180deg, var(--bg-dark), var(--bg-dark-secondary));
   position: relative;
 }
