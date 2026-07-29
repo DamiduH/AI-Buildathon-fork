@@ -38,7 +38,6 @@ export default function About({ techContainerRef }) {
               </div>
               <h3 className="fact-title">Format</h3>
               <p className="fact-desc">Conducted entirely online with mentorship workshops.</p>
-              <div className="fact-value">100% Online</div>
             </div>
             <div className="fact-card reveal stagger-2">
               <div className="fact-icon">
@@ -48,7 +47,6 @@ export default function About({ techContainerRef }) {
               </div>
               <h3 className="fact-title">Team Size</h3>
               <p className="fact-desc">Build alone or collaborate in groups of up to three.</p>
-              <div className="fact-value">1 – 3 Builders</div>
             </div>
           </div>
         </div>
