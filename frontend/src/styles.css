@@ -668,6 +668,15 @@ header.scrolled {
   color: var(--text-secondary);
 }
 
+.fact-value {
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 1px;
+}
+
 /* Toolkit Section styling (Qoder, QoderWork, MuleRun) */
 .toolkit {
   padding: 6rem 5% 8rem;
