@@ -522,7 +522,7 @@ header.scrolled {
 
 /* Quick Facts Grid Section */
 .quick-facts {
-  padding: 8rem 5% 0.5rem;
+  padding: 8rem 5% 0;
   position: relative;
 }
 
@@ -531,7 +531,7 @@ header.scrolled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4rem;
+  gap: 0;
   width: 100%;
 }
 
@@ -544,7 +544,7 @@ header.scrolled {
   flex: 0.9;
   position: sticky;
   top: 120px;
-  display: flex !important;
+  display: none !important;
 }
 
 .interactive-tech-container {
@@ -679,7 +679,7 @@ header.scrolled {
 
 /* Toolkit Section styling (Qoder, QoderWork, MuleRun) */
 .toolkit {
-  padding: 0.5rem 5% 8rem;
+  padding: 0 5% 8rem;
   background: linear-gradient(180deg, var(--bg-dark), var(--bg-dark-secondary));
   position: relative;
 }
