@@ -606,6 +606,10 @@ header.scrolled {
   transition: all 0.4s var(--cubic-bezier);
   position: relative;
   overflow: hidden;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .fact-card::after {
@@ -626,7 +630,7 @@ header.scrolled {
 }
 
 .fact-icon {
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem;
   width: 45px;
   height: 45px;
   border-radius: 6px;
@@ -669,7 +673,7 @@ header.scrolled {
   font-family: var(--font-mono);
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: #0f172a;
   letter-spacing: 1px;
 }
 
