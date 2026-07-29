@@ -21,6 +21,11 @@ export function validateRegistrationForm(form, teamSize, members) {
     if (!member.name || !member.name.trim()) {
       errors[`member-${i}-name`] = `Member ${i + 2}'s full name is required.`;
     }
+    if (!member.email || !member.email.trim()) {
+      errors[`member-${i}-email`] = `Member ${i + 2}'s email address is required.`;
+    } else if (!EMAIL_RE.test(member.email.trim())) {
+      errors[`member-${i}-email`] = `Enter a valid email for Member ${i + 2}.`;
+    }
     if (!member.student_id || !member.student_id.trim()) {
       errors[`member-${i}-student_id`] = `Member ${i + 2}'s Student ID is required.`;
     }

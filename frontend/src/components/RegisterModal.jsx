@@ -20,7 +20,7 @@ const initialFormState = {
   teamName: ''
 };
 
-const emptyMember = { name: '', student_id: '', faculty: '', department: '', year_of_study: '1st Year' };
+const emptyMember = { name: '', email: '', student_id: '', faculty: '', department: '', year_of_study: '1st Year' };
 
 export default function RegisterModal() {
   const { isOpen, closeModal } = usePortalModal();
@@ -149,6 +149,7 @@ export default function RegisterModal() {
         team_size: teamSize,
         members: members.map((member) => ({
           name: (member.name || '').trim(),
+          email: (member.email || '').trim().toLowerCase(),
           student_id: (member.student_id || '').trim(),
           faculty: member.faculty || '',
           department: member.department || '',
@@ -390,17 +391,30 @@ export default function RegisterModal() {
                       </div>
                       <div className="form-group">
                         <input
-                          type="text"
-                          className={inputClass(`member-${index}-student_id`)}
-                          placeholder={`Member ${index + 2} Student ID`}
-                          value={member.student_id}
-                          onChange={handleMemberChange(index, 'student_id')}
-                          onBlur={markTouched(`member-${index}-student_id`)}
+                          type="email"
+                          className={inputClass(`member-${index}-email`)}
+                          placeholder={`Member ${index + 2} Email Address`}
+                          value={member.email || ''}
+                          onChange={handleMemberChange(index, 'email')}
+                          onBlur={markTouched(`member-${index}-email`)}
                         />
-                        {fieldError(`member-${index}-student_id`) && (
-                          <span className="field-error">{fieldError(`member-${index}-student_id`)}</span>
+                        {fieldError(`member-${index}-email`) && (
+                          <span className="field-error">{fieldError(`member-${index}-email`)}</span>
                         )}
                       </div>
+                    </div>
+                    <div className="form-group">
+                      <input
+                        type="text"
+                        className={inputClass(`member-${index}-student_id`)}
+                        placeholder={`Member ${index + 2} Student ID`}
+                        value={member.student_id}
+                        onChange={handleMemberChange(index, 'student_id')}
+                        onBlur={markTouched(`member-${index}-student_id`)}
+                      />
+                      {fieldError(`member-${index}-student_id`) && (
+                        <span className="field-error">{fieldError(`member-${index}-student_id`)}</span>
+                      )}
                     </div>
                     <div className="form-row">
                       <div className="form-group">

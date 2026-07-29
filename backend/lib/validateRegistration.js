@@ -90,6 +90,14 @@ export function validateRegistration(body) {
       return { valid: false, error: 'Every team member needs a full name and student ID.' };
     }
     if (
+      !member.email ||
+      typeof member.email !== 'string' ||
+      member.email.trim().length > MAX_LEN.email ||
+      !EMAIL_RE.test(member.email.trim())
+    ) {
+      return { valid: false, error: 'Every team member needs a valid email address.' };
+    }
+    if (
       !isNonEmptyString(member.faculty, MAX_LEN.faculty) ||
       !isNonEmptyString(member.department, MAX_LEN.department)
     ) {
@@ -123,6 +131,7 @@ export function validateRegistration(body) {
       team_size: size,
       members: memberList.map((m) => ({
         name: m.name.trim(),
+        email: m.email.trim().toLowerCase(),
         student_id: m.student_id.trim(),
         faculty: m.faculty.trim(),
         department: m.department.trim(),
