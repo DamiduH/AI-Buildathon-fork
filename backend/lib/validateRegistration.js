@@ -89,6 +89,15 @@ export function validateRegistration(body) {
     ) {
       return { valid: false, error: 'Every team member needs a full name and student ID.' };
     }
+    if (
+      !isNonEmptyString(member.faculty, MAX_LEN.faculty) ||
+      !isNonEmptyString(member.department, MAX_LEN.department)
+    ) {
+      return { valid: false, error: 'Every team member needs a faculty and department.' };
+    }
+    if (!VALID_YEARS.includes(member.year_of_study)) {
+      return { valid: false, error: 'Every team member needs a valid year of study.' };
+    }
   }
 
   // tools_interested is optional and currently unused by the form (always
@@ -112,7 +121,13 @@ export function validateRegistration(body) {
       year_of_study,
       team_name: team_name.trim(),
       team_size: size,
-      members: memberList.map((m) => ({ name: m.name.trim(), student_id: m.student_id.trim() })),
+      members: memberList.map((m) => ({
+        name: m.name.trim(),
+        student_id: m.student_id.trim(),
+        faculty: m.faculty.trim(),
+        department: m.department.trim(),
+        year_of_study: m.year_of_study
+      })),
       tools_interested: toolsList
     }
   };

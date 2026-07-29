@@ -48,6 +48,12 @@ export default function Footer() {
           <span className="logo-item" title="University of Kelaniya" style={{ display: 'flex', alignItems: 'center' }}>
             <img src="/assets/uok-crest.png" alt="University of Kelaniya" style={{ height: 38, width: 'auto', display: 'block' }} />
           </span>
+
+          <div className="logo-separator"></div>
+
+          <span className="logo-item" title="Mint" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/assets/mintLogo.png" alt="Mint" style={{ height: 32, width: 'auto', display: 'block' }} />
+          </span>
         </div>
 
         <p className="footer-credits">

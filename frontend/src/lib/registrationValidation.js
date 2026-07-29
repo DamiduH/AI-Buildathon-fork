@@ -24,6 +24,14 @@ export function validateRegistrationForm(form, teamSize, members) {
     if (!member.student_id || !member.student_id.trim()) {
       errors[`member-${i}-student_id`] = `Member ${i + 2}'s Student ID is required.`;
     }
+    if (!member.faculty) {
+      errors[`member-${i}-faculty`] = `Please select Member ${i + 2}'s faculty.`;
+    }
+    if (!member.department) {
+      errors[`member-${i}-department`] = member.faculty
+        ? `Please select Member ${i + 2}'s department.`
+        : 'Select a faculty first.';
+    }
   }
 
   return errors;

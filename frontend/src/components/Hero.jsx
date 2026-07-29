@@ -94,7 +94,7 @@ export default function Hero() {
             fontSize: '0.85rem',
             textTransform: 'uppercase',
             letterSpacing: '3px',
-            color: 'var(--text-secondary)',
+            color: '#cbd5e1',
             lineHeight: 1
           }}
         >
@@ -103,7 +103,7 @@ export default function Hero() {
         <img
           src="/assets/alibaba-cloud-logo.png"
           alt="Alibaba Cloud"
-          style={{ height: 22, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
+          style={{ height: 22, width: 'auto', display: 'block', filter: 'brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,85,0,0.4))' }}
         />
       </div>
       <p className="hero-subtitle" style={{ marginTop: 0, maxWidth: 650, marginBottom: '3.5rem', position: 'relative', zIndex: 2 }}>

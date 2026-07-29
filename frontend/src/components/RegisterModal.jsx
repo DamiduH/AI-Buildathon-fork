@@ -20,6 +20,8 @@ const initialFormState = {
   teamName: ''
 };
 
+const emptyMember = { name: '', student_id: '', faculty: '', department: '', year_of_study: '1st Year' };
+
 export default function RegisterModal() {
   const { isOpen, closeModal } = usePortalModal();
 
@@ -96,7 +98,7 @@ export default function RegisterModal() {
     setMembers((prev) => {
       const needed = size - 1;
       const next = prev.slice(0, needed);
-      while (next.length < needed) next.push({ name: '', student_id: '' });
+      while (next.length < needed) next.push({ ...emptyMember });
       return next;
     });
   };
@@ -106,6 +108,8 @@ export default function RegisterModal() {
     setMembers((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };
+      // Changing faculty invalidates the previously selected department.
+      if (field === 'faculty') next[index].department = '';
       return next;
     });
   };
@@ -143,7 +147,14 @@ export default function RegisterModal() {
         year_of_study: form.yearOfStudy,
         team_name: form.teamName.trim(),
         team_size: teamSize,
-        members,
+        members: members.map((member) => ({
+          name: (member.name || '').trim(),
+          student_id: (member.student_id || '').trim(),
+          faculty: member.faculty || '',
+          department: member.department || '',
+          // Drafts saved before these fields existed may lack a year - default it.
+          year_of_study: member.year_of_study || '1st Year'
+        })),
         tools_interested: [],
         captchaToken,
         company_website: honeypot
@@ -360,36 +371,86 @@ export default function RegisterModal() {
               </div>
 
               <div id="memberFieldsContainer">
-                {members.length > 0 && (
-                  <label className="form-label" style={{ marginTop: '1rem' }}>Team Member Information</label>
-                )}
                 {members.map((member, index) => (
-                  <div className="form-row" key={index}>
-                    <div className="form-group">
-                      <input
-                        type="text"
-                        className={inputClass(`member-${index}-name`)}
-                        placeholder={`Member ${index + 2} Full Name`}
-                        value={member.name}
-                        onChange={handleMemberChange(index, 'name')}
-                        onBlur={markTouched(`member-${index}-name`)}
-                      />
-                      {fieldError(`member-${index}-name`) && (
-                        <span className="field-error">{fieldError(`member-${index}-name`)}</span>
-                      )}
+                  <div key={index} style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-glass)', paddingTop: '1.5rem' }}>
+                    <label className="form-label">Member {index + 2} Information</label>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          className={inputClass(`member-${index}-name`)}
+                          placeholder={`Member ${index + 2} Full Name`}
+                          value={member.name}
+                          onChange={handleMemberChange(index, 'name')}
+                          onBlur={markTouched(`member-${index}-name`)}
+                        />
+                        {fieldError(`member-${index}-name`) && (
+                          <span className="field-error">{fieldError(`member-${index}-name`)}</span>
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          className={inputClass(`member-${index}-student_id`)}
+                          placeholder={`Member ${index + 2} Student ID`}
+                          value={member.student_id}
+                          onChange={handleMemberChange(index, 'student_id')}
+                          onBlur={markTouched(`member-${index}-student_id`)}
+                        />
+                        {fieldError(`member-${index}-student_id`) && (
+                          <span className="field-error">{fieldError(`member-${index}-student_id`)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <select
+                          className={inputClass(`member-${index}-faculty`)}
+                          value={member.faculty || ''}
+                          onChange={handleMemberChange(index, 'faculty')}
+                          onBlur={markTouched(`member-${index}-faculty`)}
+                        >
+                          <option value="" disabled>{`Member ${index + 2} Faculty`}</option>
+                          {faculties.map((faculty) => (
+                            <option key={faculty} value={faculty}>{faculty}</option>
+                          ))}
+                        </select>
+                        {fieldError(`member-${index}-faculty`) && (
+                          <span className="field-error">{fieldError(`member-${index}-faculty`)}</span>
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <select
+                          className={inputClass(`member-${index}-department`)}
+                          disabled={!member.faculty}
+                          value={member.department || ''}
+                          onChange={handleMemberChange(index, 'department')}
+                          onBlur={markTouched(`member-${index}-department`)}
+                        >
+                          <option value="" disabled>
+                            {member.faculty ? `Member ${index + 2} Department` : 'Select Faculty First'}
+                          </option>
+                          {(facultyDeptData[member.faculty] || []).map((dept) => (
+                            <option key={dept} value={dept}>{dept}</option>
+                          ))}
+                        </select>
+                        {fieldError(`member-${index}-department`) && (
+                          <span className="field-error">{fieldError(`member-${index}-department`)}</span>
+                        )}
+                      </div>
                     </div>
                     <div className="form-group">
-                      <input
-                        type="text"
-                        className={inputClass(`member-${index}-student_id`)}
-                        placeholder={`Member ${index + 2} Student ID`}
-                        value={member.student_id}
-                        onChange={handleMemberChange(index, 'student_id')}
-                        onBlur={markTouched(`member-${index}-student_id`)}
-                      />
-                      {fieldError(`member-${index}-student_id`) && (
-                        <span className="field-error">{fieldError(`member-${index}-student_id`)}</span>
-                      )}
+                      <select
+                        className="form-input"
+                        value={member.year_of_study || '1st Year'}
+                        onChange={handleMemberChange(index, 'year_of_study')}
+                        aria-label={`Member ${index + 2} Year of Study`}
+                      >
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                      </select>
                     </div>
                   </div>
                 ))}
