@@ -9,9 +9,9 @@ export default function About({ techContainerRef }) {
     <section className="quick-facts" id="about">
       <div className="about-container">
         <div className="about-left">
-          <div className="reveal" style={{ marginBottom: '4rem', textAlign: 'center' }}>
+          <div className="reveal" style={{ marginBottom: '3rem', textAlign: 'center' }}>
             <span className="section-label">Overview</span>
-            <h2 className="section-title">An online sprint to ship AI-powered solutions</h2>
+            <h2 className="section-title" style={{ marginBottom: '1.25rem' }}>An online sprint to ship AI-powered solutions</h2>
             <p
               style={{
                 color: 'var(--text-secondary)',
@@ -38,7 +38,6 @@ export default function About({ techContainerRef }) {
               </div>
               <h3 className="fact-title">Format</h3>
               <p className="fact-desc">Conducted entirely online with mentorship workshops.</p>
-              <div className="fact-value">100% Online</div>
             </div>
             <div className="fact-card reveal stagger-2">
               <div className="fact-icon">
@@ -48,12 +47,11 @@ export default function About({ techContainerRef }) {
               </div>
               <h3 className="fact-title">Team Size</h3>
               <p className="fact-desc">Build alone or collaborate in groups of up to three.</p>
-              <div className="fact-value">1 – 3 Builders</div>
             </div>
           </div>
         </div>
 
-        <div className="about-right reveal stagger-3" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="about-right reveal stagger-3">
           <div
             className="interactive-tech-container"
             id="interactiveTechContainer"

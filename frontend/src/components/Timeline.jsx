@@ -11,9 +11,9 @@ export default function Timeline({ techContainerRef }) {
 
   return (
     <section className="roadmap" id="timeline">
-      <div style={{ maxWidth: 800, margin: '0 auto 4rem', textAlign: 'center' }} className="reveal">
+      <div style={{ maxWidth: 800, margin: '0 auto 3rem', textAlign: 'center' }} className="reveal">
         <span className="section-label">Timeline</span>
-        <h2 className="section-title">Three-Week Roadmap & Key Dates</h2>
+        <h2 className="section-title" style={{ marginBottom: 0 }}>Three-Week Roadmap & Key Dates</h2>
       </div>
 
       <div className="timeline-container" ref={containerRef}>

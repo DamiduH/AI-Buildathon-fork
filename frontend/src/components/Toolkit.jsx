@@ -3,9 +3,9 @@ import React from 'react';
 export default function Toolkit() {
   return (
     <section className="toolkit" id="tools">
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }} className="reveal">
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }} className="reveal">
         <span className="section-label">Resources</span>
-        <h2 className="section-title">The three developer tools you will master</h2>
+        <h2 className="section-title" style={{ marginBottom: '1.25rem' }}>The three developer tools you will master</h2>
         <p style={{ color: 'var(--text-secondary)', maxWidth: 600, margin: '0 auto' }}>
           Leverage official Alibaba Cloud developer suites to write code, design agent actions, and compile API endpoints.
         </p>

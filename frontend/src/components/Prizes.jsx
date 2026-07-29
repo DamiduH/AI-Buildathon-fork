@@ -3,9 +3,9 @@ import React from 'react';
 export default function Prizes() {
   return (
     <section className="prizes" id="prizes">
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }} className="reveal">
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }} className="reveal">
         <span className="section-label">Rewards</span>
-        <h2 className="section-title">Prizes & Global Certification</h2>
+        <h2 className="section-title" style={{ marginBottom: 0 }}>Prizes & Global Certification</h2>
       </div>
 
       <div className="prizes-grid">
