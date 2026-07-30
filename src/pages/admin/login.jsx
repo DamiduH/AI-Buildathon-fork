@@ -60,7 +60,7 @@ export default function AdminLogin() {
         <title>Admin Login — AI Buildathon</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
+      <div className="admin-root min-h-screen flex items-center justify-center bg-slate-950 px-4">
         <div className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
           <div className="mx-auto mb-5 h-12 w-12 rounded-xl bg-brand-orange/10 border border-brand-orange/30 flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF5500" strokeWidth="2">
@@ -77,6 +77,7 @@ export default function AdminLogin() {
           )}
 
           <button
+            type="button"
             onClick={handleSignIn}
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 bg-white text-slate-900 font-semibold rounded-lg py-3 hover:bg-slate-100 transition disabled:opacity-60 disabled:cursor-not-allowed"

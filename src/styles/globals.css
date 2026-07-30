@@ -1,8 +1,6 @@
-/* Original hand-authored design system for the AI Buildathon site.
-   Kept verbatim so the UI is pixel-identical to the pre-migration version.
-   NOTE: @import must come before any other statement (incl. @tailwind). */
-@import './styles.css';
-
+/* Shared app shell. Marketing site styles live in styles.css and are
+   imported only from the public landing page so they don't fight the
+   admin dashboard's Tailwind utilities (preflight is disabled). */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,9 +9,48 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Admin dashboard isolation — restores sane element defaults that Tailwind
+   preflight would normally provide (disabled so the marketing site keeps
+   its hand-authored reset). */
+.admin-root {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+.admin-root table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.admin-root th,
+.admin-root td {
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-root button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.admin-root input {
+  font: inherit;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
 }

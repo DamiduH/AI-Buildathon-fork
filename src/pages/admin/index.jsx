@@ -45,9 +45,12 @@ function StatCard({ label, value, accent }) {
 
 function formatDate(iso) {
   try {
-    return new Date(iso).toLocaleString(undefined, {
+    // Fixed locale + timezone so SSR and the browser render the same string
+    // (avoids React hydration mismatches that scramble table alignment).
+    return new Date(iso).toLocaleString('en-GB', {
       dateStyle: 'medium',
-      timeStyle: 'short'
+      timeStyle: 'short',
+      timeZone: 'Asia/Colombo'
     });
   } catch {
     return iso;
@@ -156,19 +159,20 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
         <title>Admin Dashboard — AI Buildathon</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
-      <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="admin-root min-h-screen bg-slate-950 text-slate-100">
         <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
-            <div>
-              <h1 className="text-lg font-bold text-white">AI Buildathon — Admin</h1>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold text-white truncate">AI Buildathon — Admin</h1>
               <p className="text-slate-400 text-xs">Registration dashboard</p>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-slate-400 text-sm hidden sm:inline">{adminEmail}</span>
+            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+              <span className="text-slate-400 text-sm hidden sm:inline truncate max-w-[220px]">{adminEmail}</span>
               <button
+                type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="text-sm font-semibold px-4 py-2 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 transition disabled:opacity-60"
+                className="text-sm font-semibold px-4 py-2 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 transition disabled:opacity-60 whitespace-nowrap"
               >
                 {loggingOut ? 'Signing out…' : 'Sign out'}
               </button>
@@ -176,7 +180,7 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-6 py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           {error && (
             <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm px-4 py-3">
               {error}
@@ -198,17 +202,18 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
               onChange={(e) => setQuery(e.target.value)}
               className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-sm placeholder:text-slate-500 focus:outline-none focus:border-brand-orange transition"
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2 shrink-0">
               <button
+                type="button"
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="px-4 py-2.5 rounded-lg border border-slate-700 text-sm font-semibold text-slate-200 hover:bg-slate-800 transition disabled:opacity-60"
+                className="px-4 py-2.5 rounded-lg border border-slate-700 text-sm font-semibold text-slate-200 hover:bg-slate-800 transition disabled:opacity-60 whitespace-nowrap"
               >
                 {refreshing ? 'Refreshing…' : 'Refresh'}
               </button>
               <a
                 href="/api/admin/export"
-                className="px-4 py-2.5 rounded-lg bg-brand-orange text-white text-sm font-semibold hover:brightness-110 transition shadow-lg shadow-brand-orange/20"
+                className="inline-flex items-center px-4 py-2.5 rounded-lg bg-brand-orange text-white text-sm font-semibold hover:brightness-110 transition shadow-lg shadow-brand-orange/20 whitespace-nowrap"
               >
                 Export CSV
               </a>
@@ -266,6 +271,7 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
                         <td className="px-4 py-3 whitespace-nowrap">
                           {r.team_size > 1 && (
                             <button
+                              type="button"
                               onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
                               className="text-brand-orange text-xs font-semibold hover:underline"
                             >

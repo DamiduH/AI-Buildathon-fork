@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import Head from 'next/head';
+import '../styles/styles.css';
 import Header from '../components/Header.jsx';
 import Hero from '../components/Hero.jsx';
 import About from '../components/About.jsx';
