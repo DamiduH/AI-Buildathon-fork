@@ -94,22 +94,6 @@ export default function About({ techContainerRef }) {
             </p>
           </div>
 
-          <div className="domains-block reveal">
-            <p className="domains-heading">Industry Tracks</p>
-            <p className="domains-sub">Pick a domain and build something that matters.</p>
-            <div className="domains-grid">
-              {DOMAINS.map((d, i) => (
-                <div key={d.name} className={`domain-card reveal stagger-${(i % 3) + 1}`}>
-                  <div className="domain-icon">{d.icon}</div>
-                  <div className="domain-info">
-                    <h3 className="domain-name">{d.name}</h3>
-                    <p className="domain-desc">{d.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           <div className="facts-grid">
             <div className="fact-card reveal stagger-1">
               <div className="fact-icon">
@@ -128,6 +112,22 @@ export default function About({ techContainerRef }) {
               </div>
               <h3 className="fact-title">Team Size</h3>
               <p className="fact-desc">Build alone or collaborate in groups of up to three.</p>
+            </div>
+          </div>
+
+          <div className="domains-block reveal">
+            <p className="domains-heading">Industry Tracks</p>
+            <p className="domains-sub">Pick a domain and build something that matters.</p>
+            <div className="domains-grid">
+              {DOMAINS.map((d, i) => (
+                <div key={d.name} className={`domain-card reveal stagger-${(i % 3) + 1}`}>
+                  <div className="domain-icon">{d.icon}</div>
+                  <div className="domain-info">
+                    <h3 className="domain-name">{d.name}</h3>
+                    <p className="domain-desc">{d.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
