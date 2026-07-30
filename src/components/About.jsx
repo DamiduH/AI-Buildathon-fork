@@ -1,6 +1,71 @@
 import React, { useRef } from 'react';
 import useAboutSphereCanvas from '../hooks/useAboutSphereCanvas.js';
 
+const DOMAINS = [
+  {
+    name: 'BFSI & FinTech',
+    desc: 'Banking, payments, insurance and smart financial tools.',
+    icon: (
+      // Bank / finance
+      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M4 10V21m16-11v11M8 14v4m4-4v4m4-4v4M2 21h20M12 3l9 7H3l9-7z" />
+      </svg>
+    )
+  },
+  {
+    name: 'EdTech & Inclusive Learning',
+    desc: 'Accessible education, tutoring and learning platforms.',
+    icon: (
+      // Graduation cap
+      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4L2 9l10 5 10-5-10-5zM6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5M22 9v5" />
+      </svg>
+    )
+  },
+  {
+    name: 'Hospitality & Tourism',
+    desc: 'Travel planning, guest experiences and destination tech.',
+    icon: (
+      // Globe / location
+      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    )
+  },
+  {
+    name: 'Smart Manufacturing',
+    desc: 'Automation, predictive maintenance and Industry 4.0.',
+    icon: (
+      // Gear / cog
+      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    )
+  },
+  {
+    name: 'Retail & eCommerce',
+    desc: 'Personalized shopping, inventory and storefront AI.',
+    icon: (
+      // Shopping cart
+      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    )
+  },
+  {
+    name: 'Enterprise Customer Support',
+    desc: 'AI agents, help desks and smarter service workflows.',
+    icon: (
+      // Headset / support
+      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M18 10a6 6 0 10-12 0v4a2 2 0 002 2h1v-6H6m12 0h-3v6h1a2 2 0 002-2v-4zm0 4v1a4 4 0 01-4 4h-2" />
+      </svg>
+    )
+  }
+];
+
 export default function About({ techContainerRef }) {
   const canvasRef = useRef(null);
   useAboutSphereCanvas(canvasRef);
@@ -27,6 +92,22 @@ export default function About({ techContainerRef }) {
               prototype that solves real-world problems across any industry. Whether it&apos;s a video generator, mobile
               app, enterprise system, or public platform, if technology is at its core, it belongs here.
             </p>
+          </div>
+
+          <div className="domains-block reveal">
+            <p className="domains-heading">Industry Tracks</p>
+            <p className="domains-sub">Pick a domain and build something that matters.</p>
+            <div className="domains-grid">
+              {DOMAINS.map((d, i) => (
+                <div key={d.name} className={`domain-card reveal stagger-${(i % 3) + 1}`}>
+                  <div className="domain-icon">{d.icon}</div>
+                  <div className="domain-info">
+                    <h3 className="domain-name">{d.name}</h3>
+                    <p className="domain-desc">{d.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="facts-grid">

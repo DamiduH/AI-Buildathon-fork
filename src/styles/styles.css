@@ -681,6 +681,123 @@ body {
   letter-spacing: 1px;
 }
 
+/* Industry Tracks (Overview section) */
+.domains-block {
+  width: 100%;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.domains-heading {
+  font-family: var(--font-mono);
+  color: var(--primary-blue);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 0.4rem;
+}
+
+.domains-sub {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.75rem;
+}
+
+.domains-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.domain-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 1.25rem 1.35rem;
+  transition: all 0.4s var(--cubic-bezier);
+  position: relative;
+  overflow: hidden;
+}
+
+.domain-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--primary-orange), var(--primary-blue));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.domain-card:hover {
+  transform: translateY(-6px);
+  background: var(--bg-card-hover);
+  border-color: var(--primary-blue);
+  box-shadow: 0 15px 35px rgba(255, 85, 0, 0.08);
+}
+
+.domain-card:hover::before {
+  opacity: 1;
+}
+
+.domain-icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  background: rgba(255, 85, 0, 0.05);
+  border: 1px solid rgba(255, 85, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-blue);
+  transition: all 0.3s ease;
+}
+
+.domain-card:hover .domain-icon {
+  background: var(--primary-blue);
+  color: #fff;
+  box-shadow: 0 0 15px var(--glow-blue);
+}
+
+.domain-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.domain-name {
+  font-family: var(--font-heading);
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 0.3rem;
+  color: var(--text-primary);
+}
+
+.domain-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+@media (max-width: 1024px) {
+  .domains-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .domains-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Toolkit Section styling (Qoder, QoderWork, MuleRun) */
 .toolkit {
   padding: 6rem 5% 8rem;
