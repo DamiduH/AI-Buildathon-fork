@@ -1,12 +1,23 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
 // Site key is safe to expose to the browser (it's public by design, like a
-// reCAPTCHA site key) - the secret key stays server-only (see backend/.env).
+// reCAPTCHA site key) - the secret key stays server-only.
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+const TURNSTILE_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+
+function ensureTurnstileScript() {
+  if (typeof document === 'undefined') return;
+  if (document.querySelector(`script[src="${TURNSTILE_SRC}"]`)) return;
+  const script = document.createElement('script');
+  script.src = TURNSTILE_SRC;
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+}
 
 /**
  * Thin wrapper around Cloudflare Turnstile's imperative JS API
- * (window.turnstile), loaded globally via the <script> tag in index.html.
+ * (window.turnstile). Loads api.js on demand so admin pages never pull it in.
  *
  * Renders explicitly (rather than relying on Turnstile's auto-render-on-scan
  * behavior) so we fully control mount/unmount timing - important here since
@@ -35,9 +46,10 @@ const Turnstile = forwardRef(function Turnstile({ onVerify, onExpire }, ref) {
     }
 
     let cancelled = false;
+    ensureTurnstileScript();
 
-    // The api.js script tag is async, so window.turnstile may not exist yet
-    // on first render - poll briefly until it's ready.
+    // api.js is async, so window.turnstile may not exist yet on first render -
+    // poll briefly until it's ready.
     const tryRender = () => {
       if (cancelled || !containerRef.current) return;
       if (!window.turnstile) {
