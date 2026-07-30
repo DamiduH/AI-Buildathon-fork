@@ -35,34 +35,47 @@ function baselineSecurityHeaders() {
 // of applied site-wide so it doesn't risk breaking the unrelated JSON API
 // routes or the plain informational page at "/".
 //
-// Allowances beyond 'self' are for Firebase Authentication's Google
-// sign-in popup flow used on /admin/login:
+// Allowances beyond 'self':
 //   - script-src apis.google.com: gapi loader Firebase Auth uses for popup sign-in.
-//   - connect-src identitytoolkit/securetoken.googleapis.com: Firebase Auth REST calls.
-//   - frame-src the Firebase authDomain: hidden iframe Firebase Auth uses for
-//     cross-tab session/token state (NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN).
+//   - script-src challenges.cloudflare.com: Turnstile api.js is loaded globally
+//     from _document.js (needed on public registration; also hits /admin pages).
+//   - connect-src identitytoolkit/securetoken.googleapis.com: Firebase Auth REST.
+//   - frame-src Firebase authDomain + accounts.google.com: Auth iframes/popups.
+//   - style-src fonts.googleapis.com + font-src fonts.gstatic.com: site fonts
+//     imported from styles.css (Plus Jakarta Sans / Rajdhani).
 // NOTE: verify /admin/login still works after deploying this - if the
 // browser console shows a CSP violation for a domain not listed here, add
 // it to the relevant directive below.
 function adminCsp() {
   const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '';
-  const frameSrc = ["'self'", 'https://accounts.google.com', authDomain && `https://${authDomain}`]
+  const frameSrc = [
+    "'self'",
+    'https://accounts.google.com',
+    'https://challenges.cloudflare.com',
+    authDomain && `https://${authDomain}`
+  ]
     .filter(Boolean)
     .join(' ');
 
   const isDev = process.env.NODE_ENV !== 'production';
-  const scriptSrc = ["'self'", 'https://apis.google.com', isDev && "'unsafe-inline'", isDev && "'unsafe-eval'"]
+  const scriptSrc = [
+    "'self'",
+    'https://apis.google.com',
+    'https://challenges.cloudflare.com',
+    isDev && "'unsafe-inline'",
+    isDev && "'unsafe-eval'"
+  ]
     .filter(Boolean)
     .join(' ');
 
   const directives = [
     "default-src 'self'",
     `script-src ${scriptSrc}`,
-    "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com",
+    "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://challenges.cloudflare.com",
     `frame-src ${frameSrc}`,
     "img-src 'self' data:",
-    "font-src 'self'",
-    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self' https://fonts.gstatic.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'"
