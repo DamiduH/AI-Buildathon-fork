@@ -25,22 +25,17 @@ const emptyMember = { name: '', email: '', student_id: '', faculty: '', departme
 export default function RegisterModal() {
   const { isOpen, closeModal } = usePortalModal();
 
-  // Restore any in-progress draft (e.g. if the modal was accidentally closed
-  // by clicking outside it) exactly once, on first render.
-  const draftRef = useRef();
-  if (draftRef.current === undefined) {
-    draftRef.current = loadRegistrationDraft() || {};
-  }
-
-  const [form, setForm] = useState(draftRef.current.form || initialFormState);
-  const [teamSize, setTeamSize] = useState(draftRef.current.teamSize || 1);
-  const [members, setMembers] = useState(draftRef.current.members || []); // extra members beyond the lead
+  const [form, setForm] = useState(initialFormState);
+  const [teamSize, setTeamSize] = useState(1);
+  const [members, setMembers] = useState([]); // extra members beyond the lead
+  const [isLoaded, setIsLoaded] = useState(false);
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [success, setSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState('');
   const turnstileRef = useRef(null);
+  const cardRef = useRef(null);
   // Honeypot anti-spam field: invisible to real users, but simple bots that
   // blindly fill every input on a form often fill this in too. Any
   // non-empty value here makes the backend silently reject the submission.
@@ -49,11 +44,32 @@ export default function RegisterModal() {
   const departmentOptions = useMemo(() => facultyDeptData[form.faculty] || [], [form.faculty]);
   const errors = useMemo(() => validateRegistrationForm(form, teamSize, members), [form, teamSize, members]);
 
+  // Restore any in-progress draft (e.g. if the modal was accidentally closed
+  // by clicking outside it) exactly once, on first render.
+  useEffect(() => {
+    const draft = loadRegistrationDraft();
+    if (draft) {
+      if (draft.form) setForm(draft.form);
+      if (draft.teamSize) setTeamSize(draft.teamSize);
+      if (draft.members) setMembers(draft.members);
+    }
+    setIsLoaded(true);
+  }, []);
+
   // Auto-save progress as the user types, so an accidental click outside the
   // modal (which just hides it) never erases what they've already entered.
   useEffect(() => {
-    saveRegistrationDraft({ form, teamSize, members });
-  }, [form, teamSize, members]);
+    if (isLoaded) {
+      saveRegistrationDraft({ form, teamSize, members });
+    }
+  }, [form, teamSize, members, isLoaded]);
+
+  // Scroll card to top when an error is set so the message is visible.
+  useEffect(() => {
+    if (errorMsg) {
+      cardRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [errorMsg]);
 
   const resetAll = () => {
     setForm(initialFormState);
@@ -195,7 +211,7 @@ export default function RegisterModal() {
       {/* data-lenis-prevent stops the Lenis smooth-scroll library from
           hijacking wheel/touch events over this card, so scrolling inside
           the modal scrolls the modal - not the page behind it. */}
-      <div className="portal-card" data-lenis-prevent>
+      <div className="portal-card" ref={cardRef} data-lenis-prevent>
         <button className="close-portal-btn" id="closePortalBtn" aria-label="Close modal" onClick={handleDismiss}>
           <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M13.5 4.5l-9 9m0-9l9 9" />

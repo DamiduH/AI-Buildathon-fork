@@ -50,14 +50,19 @@ function adminCsp() {
     .filter(Boolean)
     .join(' ');
 
+  const isDev = process.env.NODE_ENV !== 'production';
+  const scriptSrc = ["'self'", 'https://apis.google.com', isDev && "'unsafe-inline'", isDev && "'unsafe-eval'"]
+    .filter(Boolean)
+    .join(' ');
+
   const directives = [
     "default-src 'self'",
-    "script-src 'self' https://apis.google.com",
+    `script-src ${scriptSrc}`,
     "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com",
     `frame-src ${frameSrc}`,
     "img-src 'self' data:",
     "font-src 'self'",
-    "style-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'"

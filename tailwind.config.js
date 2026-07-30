@@ -1,14 +1,21 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
-    './index.html',
-    './src/**/*.{js,jsx,ts,tsx}'
+    './src/pages/**/*.{js,ts,jsx,tsx}',
+    './src/components/**/*.{js,ts,jsx,tsx}',
+    './src/hooks/**/*.{js,ts,jsx,tsx}',
+    './src/context/**/*.{js,ts,jsx,tsx}',
+    './src/data/**/*.{js,ts,jsx,tsx}',
+    './src/lib/**/*.{js,ts,jsx,tsx}'
   ],
   theme: {
     extend: {
       colors: {
         'primary-orange': '#FF5500',
-        'primary-blue': '#FF8800'
+        'primary-blue': '#FF8800',
+        brand: {
+          orange: '#FF5500'
+        }
       },
       fontFamily: {
         heading: ['Plus Jakarta Sans', 'sans-serif'],
@@ -17,9 +24,6 @@ export default {
       }
     }
   },
-  // The site's visual design comes from the original hand-tuned styles.css
-  // (kept 1:1 to avoid changing the UI). Tailwind is layered on top for
-  // resets/utilities and is available for any new markup.
   corePlugins: {
     preflight: false
   },

@@ -8,7 +8,7 @@
 // will redirect - and browsers refuse to follow a redirect on a CORS
 // preflight (OPTIONS) request, causing a confusing CORS error instead of
 // the real cause.
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || '/api').replace(/\/+$/, '');
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_BASE_URL}${path}`, {
