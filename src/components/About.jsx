@@ -115,17 +115,18 @@ export default function About({ techContainerRef }) {
             </div>
           </div>
 
-          {/* The block wrapper is intentionally NOT a .reveal element - nesting
-              reveals compounds the translate/blur and breaks the animation on
-              the later cards, so only the header and each card reveal. */}
+          {/* The grid reveals as a single unit. Per-card `reveal stagger-*`
+              classes clash with .domain-card's own hover transition (its
+              `transition: all` overrides the reveal timing/delays), which
+              visibly broke the second row of cards. */}
           <div className="domains-block">
             <div className="reveal">
               <p className="domains-heading">Industry Tracks</p>
               <p className="domains-sub">Pick a domain and build something that matters.</p>
             </div>
-            <div className="domains-grid">
-              {DOMAINS.map((d, i) => (
-                <div key={d.name} className={`domain-card reveal stagger-${(i % 3) + 1}`}>
+            <div className="domains-grid reveal">
+              {DOMAINS.map((d) => (
+                <div key={d.name} className="domain-card">
                   <div className="domain-icon">{d.icon}</div>
                   <div className="domain-info">
                     <h3 className="domain-name">{d.name}</h3>
