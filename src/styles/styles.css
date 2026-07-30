@@ -600,7 +600,9 @@ body {
 
 .facts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  /* min(100%, …) lets columns shrink below the ideal width on narrow
+     phones instead of overflowing and getting clipped. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 2rem;
   width: 100%;
 }
@@ -808,7 +810,9 @@ body {
 
 .toolkit-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  /* min(100%, …) lets columns shrink below the ideal width on narrow
+     phones instead of overflowing and getting clipped. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 2rem;
   margin-top: 3rem;
 }
@@ -1983,6 +1987,15 @@ footer::before {
     min-width: 50px;
   }
 
+  /* Keep all four timer blocks inside the card on narrow phones */
+  .countdown-container {
+    padding: 1.75rem 1rem;
+  }
+
+  .countdown-grid {
+    gap: 0.75rem;
+  }
+
   .hero-ctas {
     flex-direction: column;
     align-items: center;
@@ -2098,5 +2111,20 @@ footer::before {
   .section-title {
     font-size: 2rem !important;
     margin-bottom: 2rem !important;
+  }
+}
+
+/* Very small phones (<=380px): shrink the countdown a step further */
+@media (max-width: 380px) {
+  .countdown-value {
+    font-size: 1.8rem;
+  }
+
+  .countdown-item {
+    min-width: 44px;
+  }
+
+  .countdown-grid {
+    gap: 0.5rem;
   }
 }
