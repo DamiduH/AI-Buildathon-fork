@@ -115,9 +115,14 @@ export default function About({ techContainerRef }) {
             </div>
           </div>
 
-          <div className="domains-block reveal">
-            <p className="domains-heading">Industry Tracks</p>
-            <p className="domains-sub">Pick a domain and build something that matters.</p>
+          {/* The block wrapper is intentionally NOT a .reveal element - nesting
+              reveals compounds the translate/blur and breaks the animation on
+              the later cards, so only the header and each card reveal. */}
+          <div className="domains-block">
+            <div className="reveal">
+              <p className="domains-heading">Industry Tracks</p>
+              <p className="domains-sub">Pick a domain and build something that matters.</p>
+            </div>
             <div className="domains-grid">
               {DOMAINS.map((d, i) => (
                 <div key={d.name} className={`domain-card reveal stagger-${(i % 3) + 1}`}>
