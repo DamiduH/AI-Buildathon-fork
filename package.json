@@ -2,17 +2,25 @@
   "name": "ai-buildathon",
   "private": true,
   "version": "1.0.0",
-  "description": "AI Buildathon site - React (Vite + Tailwind) frontend and Next.js backend API",
+  "description": "AI Buildathon site - Unified React + Next.js web application",
   "scripts": {
-    "install:all": "npm install --prefix frontend && npm install --prefix backend",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "dev:backend": "npm run dev --prefix backend",
-    "dev": "concurrently -n FRONTEND,BACKEND -c blue,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
-    "build:frontend": "npm run build --prefix frontend",
-    "build:backend": "npm run build --prefix backend",
-    "build": "npm run build:backend && npm run build:frontend"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "firebase": "^10.14.1",
+    "firebase-admin": "^12.6.0",
+    "lenis": "^1.1.13",
+    "next": "^14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "concurrently": "^9.1.0"
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
   }
 }

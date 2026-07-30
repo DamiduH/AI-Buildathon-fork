@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react
 
 // Site key is safe to expose to the browser (it's public by design, like a
 // reCAPTCHA site key) - the secret key stays server-only (see backend/.env).
-const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
+const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
 
 /**
  * Thin wrapper around Cloudflare Turnstile's imperative JS API
@@ -30,7 +30,7 @@ const Turnstile = forwardRef(function Turnstile({ onVerify, onExpire }, ref) {
 
   useEffect(() => {
     if (!SITE_KEY) {
-      console.error('[Turnstile] VITE_TURNSTILE_SITE_KEY is not set - CAPTCHA cannot render.');
+      console.error('[Turnstile] NEXT_PUBLIC_TURNSTILE_SITE_KEY is not set - CAPTCHA cannot render.');
       return;
     }
 
