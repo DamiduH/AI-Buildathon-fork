@@ -1,27 +1,30 @@
-/* Shared app shell. Marketing site styles live in styles.css and are
-   imported only from the public landing page so they don't fight the
-   admin dashboard's Tailwind utilities (preflight is disabled). */
+/* Marketing styles must load via @import here (before other rules). Next.js
+   only allows global CSS from _app.js — importing styles.css from a page
+   fails the production build. Admin isolation is handled by .admin-root
+   overrides below, which win over the marketing reset for dashboard UI. */
+@import './styles.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 /* Admin dashboard isolation — restores sane element defaults that Tailwind
    preflight would normally provide (disabled so the marketing site keeps
-   its hand-authored reset). */
+   its hand-authored reset). These rules intentionally follow styles.css so
+   they override the marketing * / body reset inside .admin-root. */
 .admin-root {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
+  background-color: #020617; /* slate-950 — beats marketing white body bleed */
+  color: #f1f5f9; /* slate-100 */
+  min-height: 100vh;
+}
+
+.admin-root *,
+.admin-root *::before,
+.admin-root *::after {
+  scroll-behavior: auto;
 }
 
 .admin-root table {

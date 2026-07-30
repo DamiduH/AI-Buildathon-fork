@@ -23,7 +23,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className={scrolled ? 'scrolled' : ''}>
+    <header className={`site-header${scrolled ? ' scrolled' : ''}`}>
       <div className="logo-container" style={{ display: 'flex', alignItems: 'center' }}>
         <a href="#" className="event-logo" aria-label="AI Buildathon Logo" style={{ display: 'flex', alignItems: 'center' }}>
           <img src="/assets/event-logo.png" alt="AI Buildathon" style={{ height: 38, width: 'auto', display: 'block' }} />
