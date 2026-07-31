@@ -67,17 +67,6 @@ export default function Timeline({ techContainerRef }) {
                 <div className="timeline-date" style={{ marginBottom: 0 }}>
                   {item.date}
                 </div>
-                <div
-                  className="tech-status"
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.75rem",
-                    letterSpacing: "1px",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  [ STATUS: INACTIVE ]
-                </div>
               </div>
               <h3 className="timeline-title">{item.title}</h3>
               <ul className="timeline-details">

@@ -13,6 +13,7 @@ export default function Toolkit() {
           One Mission: Build.
         </h2>
         <p
+          className="section-subtitle"
           style={{
             color: "var(--text-secondary)",
             maxWidth: 600,

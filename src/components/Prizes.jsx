@@ -12,10 +12,9 @@ export default function Prizes() {
           Prizes & Global Certification
         </h2>
         <p
+          className="section-subtitle"
           style={{
             color: "var(--text-secondary)",
-            fontSize: "1.1rem",
-            lineHeight: 1.8,
             textAlign: "center",
             maxWidth: 1100,
             margin: "0 auto",

@@ -10,7 +10,7 @@ export default function FinalCta() {
         <span className="final-cta-eyebrow">Ready to build?</span>
         <h2 id="final-cta-title">Your Idea Starts Here.</h2>
 
-        <p className="final-cta-intro">
+        <p className="final-cta-intro section-subtitle">
           You have <strong>two weeks</strong> to take an idea from your head to
           a working AI-powered solution.
         </p>
@@ -26,7 +26,10 @@ export default function FinalCta() {
           className="final-cta-button"
           onClick={openModal}
         >
-          Register for AI Buildathon <span aria-hidden="true">→</span>
+          Register for AI Buildathon{" "}
+          <span className="material-symbols-outlined" aria-hidden="true">
+            arrow_forward
+          </span>
         </button>
 
         <a className="final-cta-contact-link" href="#contact">

@@ -147,10 +147,9 @@ export default function About({ techContainerRef }) {
               Solution.
             </h2>
             <p
+              className="section-subtitle"
               style={{
                 color: "var(--text-secondary)",
-                fontSize: "1.1rem",
-                lineHeight: 1.8,
                 textAlign: "center",
                 maxWidth: 1100,
                 margin: "0 auto",
@@ -230,33 +229,33 @@ export default function About({ techContainerRef }) {
               visibly broke the second row of cards. */}
           <div className="domains-block">
             <div className="reveal">
-              <span className="section-label">WHAT WILL YOU BUILD?</span>
+              <span className="section-label">CHOOSE YOUR TRACK</span>
               <h2 className="section-title" style={{ marginBottom: "1.25rem" }}>
-                Any Problem. <br className="mobile-title-break" />
-                Any Industry. <br className="mobile-title-break" />
-                Your Idea.
+                Build for a <br className="mobile-title-break" />
+                Real Industry Challenge.
               </h2>
               <p
+                className="section-subtitle"
                 style={{
                   color: "var(--text-secondary)",
-                  fontSize: "1.1rem",
-                  lineHeight: 1.8,
                   textAlign: "center",
                   maxWidth: 1100,
                   margin: "0 auto",
                   display: "flex",
                   flexDirection: "column",
                   gap: "0.5rem",
-                  paddingBottom: "1.5rem",
+                  paddingBottom: "2rem",
                 }}
               >
                 <span style={{ fontWeight: 600 }}>
-                  There are no fixed project categories.
+                  Your project must be developed within one of the official
+                  Buildathon tracks below.
                 </span>
                 <span>
                   {" "}
-                  Choose a problem you care about and create an AI-powered
-                  solution around it.
+                  Choose the field that best fits your idea, identify a
+                  meaningful problem, and build an AI-powered solution around
+                  it.
                 </span>
               </p>
             </div>
