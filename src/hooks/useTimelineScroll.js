@@ -19,6 +19,7 @@ export default function useTimelineScroll({ containerRef, progressRef, laserTail
     let targetTailHeight = 0;
     let currentTailHeight = 0;
     let animationFrameId = null;
+    let scrollFrameId = null;
 
     const updateTailPhysics = () => {
       if (Date.now() - lastScrollTimeVal > 80) {
@@ -123,23 +124,34 @@ export default function useTimelineScroll({ containerRef, progressRef, laserTail
       }
     };
 
-    window.addEventListener('scroll', handleScrollInteractions);
-    window.addEventListener('touchmove', handleScrollInteractions, { passive: true });
+    // Native scroll, touch input, and Lenis can all emit during the same
+    // rendered frame. Collapse them into one layout/read-write pass to avoid
+    // repeated getBoundingClientRect calls and mobile scroll jank.
+    const requestScrollUpdate = () => {
+      if (scrollFrameId !== null) return;
+
+      scrollFrameId = requestAnimationFrame(() => {
+        scrollFrameId = null;
+        handleScrollInteractions();
+      });
+    };
+
+    window.addEventListener('scroll', requestScrollUpdate, { passive: true });
 
     // Lenis may initialize slightly after this effect (child effects run
     // before the parent's Lenis-init effect), so attach lazily too.
-    const attachLenisListener = () => window.__lenis?.on('scroll', handleScrollInteractions);
+    const attachLenisListener = () => window.__lenis?.on('scroll', requestScrollUpdate);
     attachLenisListener();
     const lenisAttachTimer = setTimeout(attachLenisListener, 50);
 
     handleScrollInteractions();
 
     return () => {
-      window.removeEventListener('scroll', handleScrollInteractions);
-      window.removeEventListener('touchmove', handleScrollInteractions);
-      window.__lenis?.off('scroll', handleScrollInteractions);
+      window.removeEventListener('scroll', requestScrollUpdate);
+      window.__lenis?.off('scroll', requestScrollUpdate);
       clearTimeout(lenisAttachTimer);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (scrollFrameId !== null) cancelAnimationFrame(scrollFrameId);
     };
   }, [containerRef, progressRef, laserTailRef, techContainerRef]);
 }
