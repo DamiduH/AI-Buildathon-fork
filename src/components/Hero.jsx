@@ -177,7 +177,10 @@ export default function Hero() {
             openModal();
           }}
         >
-          Register Now <span aria-hidden="true">→</span>
+          Register Now{" "}
+          <span className="material-symbols-outlined" aria-hidden="true">
+            arrow_forward
+          </span>
         </a>
         <a href="#about" className="btn-secondary">
           Explore More

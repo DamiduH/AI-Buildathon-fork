@@ -95,20 +95,13 @@ export default function useTimelineScroll({ containerRef, progressRef, laserTail
         if (!dotWrapper) return;
 
         const dotRect = dotWrapper.getBoundingClientRect();
-        const statusText = item.querySelector('.tech-status');
 
         if (dotRect.top <= triggerPoint) {
           if (!item.classList.contains('active-timeline')) {
             item.classList.add('active-timeline');
-            if (statusText) {
-              statusText.textContent = '[ STATUS: COMPLETED ]';
-            }
           }
         } else if (item.classList.contains('active-timeline')) {
           item.classList.remove('active-timeline');
-          if (statusText) {
-            statusText.textContent = '[ STATUS: INACTIVE ]';
-          }
         }
       });
     };

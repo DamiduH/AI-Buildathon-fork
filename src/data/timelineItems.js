@@ -19,7 +19,7 @@ export const timelineItems = [
   },
   {
     phase: '03',
-    date: 'August 10 – 14, 2026',
+    date: 'August 12, 2026,',
     title: 'Hackathon Kick-Off Session (2 Hr)',
     details: [
       'Official Alibaba Cloud introductory seminar',
