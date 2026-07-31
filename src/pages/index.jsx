@@ -6,6 +6,7 @@ import About from '../components/About.jsx';
 import Toolkit from '../components/Toolkit.jsx';
 import Timeline from '../components/Timeline.jsx';
 import Prizes from '../components/Prizes.jsx';
+import FinalCta from '../components/FinalCta.jsx';
 import Footer from '../components/Footer.jsx';
 import RegisterModal from '../components/RegisterModal.jsx';
 import { PortalModalProvider } from '../context/PortalModalContext.jsx';
@@ -36,6 +37,7 @@ export default function Home() {
       <Toolkit />
       <Timeline techContainerRef={techContainerRef} />
       <Prizes />
+      <FinalCta />
       <RegisterModal />
       <Footer />
     </PortalModalProvider>

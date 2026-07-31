@@ -1,26 +1,33 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { usePortalModal } from '../context/PortalModalContext.jsx';
-import { faculties, facultyDeptData } from '../data/facultyDepartments.js';
-import { registerTeam } from '../lib/api.js';
-import Turnstile from './Turnstile.jsx';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { usePortalModal } from "../context/PortalModalContext.jsx";
+import { faculties, facultyDeptData } from "../data/facultyDepartments.js";
+import { registerTeam } from "../lib/api.js";
+import Turnstile from "./Turnstile.jsx";
 import {
   clearRegistrationDraft,
   loadRegistrationDraft,
   saveRegistrationDraft,
-  validateRegistrationForm
-} from '../lib/registrationValidation.js';
+  validateRegistrationForm,
+} from "../lib/registrationValidation.js";
 
 const initialFormState = {
-  fullName: '',
-  email: '',
-  studentId: '',
-  faculty: '',
-  department: '',
-  yearOfStudy: '1st Year',
-  teamName: ''
+  fullName: "",
+  email: "",
+  studentId: "",
+  faculty: "",
+  department: "",
+  yearOfStudy: "1st Year",
+  teamName: "",
 };
 
-const emptyMember = { name: '', email: '', student_id: '', faculty: '', department: '', year_of_study: '1st Year' };
+const emptyMember = {
+  name: "",
+  email: "",
+  student_id: "",
+  faculty: "",
+  department: "",
+  year_of_study: "1st Year",
+};
 
 export default function RegisterModal() {
   const { isOpen, closeModal } = usePortalModal();
@@ -31,18 +38,24 @@ export default function RegisterModal() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
   const [success, setSuccess] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaToken, setCaptchaToken] = useState("");
   const turnstileRef = useRef(null);
   const cardRef = useRef(null);
   // Honeypot anti-spam field: invisible to real users, but simple bots that
   // blindly fill every input on a form often fill this in too. Any
   // non-empty value here makes the backend silently reject the submission.
-  const [honeypot, setHoneypot] = useState('');
+  const [honeypot, setHoneypot] = useState("");
 
-  const departmentOptions = useMemo(() => facultyDeptData[form.faculty] || [], [form.faculty]);
-  const errors = useMemo(() => validateRegistrationForm(form, teamSize, members), [form, teamSize, members]);
+  const departmentOptions = useMemo(
+    () => facultyDeptData[form.faculty] || [],
+    [form.faculty],
+  );
+  const errors = useMemo(
+    () => validateRegistrationForm(form, teamSize, members),
+    [form, teamSize, members],
+  );
 
   // Restore any in-progress draft (e.g. if the modal was accidentally closed
   // by clicking outside it) exactly once, on first render.
@@ -67,7 +80,7 @@ export default function RegisterModal() {
   // Scroll card to top when an error is set so the message is visible.
   useEffect(() => {
     if (errorMsg) {
-      cardRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      cardRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [errorMsg]);
 
@@ -76,12 +89,12 @@ export default function RegisterModal() {
     setTeamSize(1);
     setMembers([]);
     setTouched({});
-    setErrorMsg('');
+    setErrorMsg("");
     setSuccess(false);
     setSubmitting(false);
-    setCaptchaToken('');
+    setCaptchaToken("");
     turnstileRef.current?.reset();
-    setHoneypot('');
+    setHoneypot("");
     clearRegistrationDraft();
   };
 
@@ -94,17 +107,18 @@ export default function RegisterModal() {
     if (success) {
       resetAll();
     } else {
-      setErrorMsg('');
+      setErrorMsg("");
     }
   };
 
-  const markTouched = (field) => () => setTouched((t) => ({ ...t, [field]: true }));
+  const markTouched = (field) => () =>
+    setTouched((t) => ({ ...t, [field]: true }));
 
   const handleFieldChange = (field) => (e) => {
     const value = e.target.value;
     setForm((prev) => {
       const next = { ...prev, [field]: value };
-      if (field === 'faculty') next.department = '';
+      if (field === "faculty") next.department = "";
       return next;
     });
   };
@@ -125,7 +139,7 @@ export default function RegisterModal() {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };
       // Changing faculty invalidates the previously selected department.
-      if (field === 'faculty') next[index].department = '';
+      if (field === "faculty") next[index].department = "";
       return next;
     });
   };
@@ -141,16 +155,18 @@ export default function RegisterModal() {
         allTouched[key] = true;
       });
       setTouched((t) => ({ ...t, ...allTouched }));
-      setErrorMsg('Please fix the highlighted fields before submitting.');
+      setErrorMsg("Please fix the highlighted fields before submitting.");
       return;
     }
 
     if (!captchaToken) {
-      setErrorMsg('Please complete the CAPTCHA verification before submitting.');
+      setErrorMsg(
+        "Please complete the CAPTCHA verification before submitting.",
+      );
       return;
     }
 
-    setErrorMsg('');
+    setErrorMsg("");
     setSubmitting(true);
 
     try {
@@ -164,17 +180,17 @@ export default function RegisterModal() {
         team_name: form.teamName.trim(),
         team_size: teamSize,
         members: members.map((member) => ({
-          name: (member.name || '').trim(),
-          email: (member.email || '').trim().toLowerCase(),
-          student_id: (member.student_id || '').trim(),
-          faculty: member.faculty || '',
-          department: member.department || '',
+          name: (member.name || "").trim(),
+          email: (member.email || "").trim().toLowerCase(),
+          student_id: (member.student_id || "").trim(),
+          faculty: member.faculty || "",
+          department: member.department || "",
           // Drafts saved before these fields existed may lack a year - default it.
-          year_of_study: member.year_of_study || '1st Year'
+          year_of_study: member.year_of_study || "1st Year",
         })),
         tools_interested: [],
         captchaToken,
-        company_website: honeypot
+        company_website: honeypot,
       });
 
       setSuccess(true);
@@ -186,60 +202,98 @@ export default function RegisterModal() {
         resetAll();
       }, 3500);
     } catch (err) {
-      setErrorMsg(err.message || 'An error occurred during registration.');
+      setErrorMsg(err.message || "An error occurred during registration.");
       // Turnstile tokens are single-use - whether the failure was the
       // CAPTCHA itself or something else (e.g. duplicate email), the spent
       // token can no longer be redeemed, so force a fresh challenge.
-      setCaptchaToken('');
+      setCaptchaToken("");
       turnstileRef.current?.reset();
     } finally {
       setSubmitting(false);
     }
   };
 
-  const fieldError = (key) => (touched[key] && errors[key] ? errors[key] : '');
-  const inputClass = (key) => `form-input${fieldError(key) ? ' input-invalid' : ''}`;
+  const fieldError = (key) => (touched[key] && errors[key] ? errors[key] : "");
+  const inputClass = (key) =>
+    `form-input${fieldError(key) ? " input-invalid" : ""}`;
 
   return (
     <div
-      className={`portal-modal${isOpen ? ' active' : ''}`}
+      className={`portal-modal${isOpen ? " active" : ""}`}
       id="portalModal"
       onClick={(e) => {
-        if (e.target.id === 'portalModal') handleDismiss();
+        if (e.target.id === "portalModal") handleDismiss();
       }}
     >
       {/* data-lenis-prevent stops the Lenis smooth-scroll library from
           hijacking wheel/touch events over this card, so scrolling inside
           the modal scrolls the modal - not the page behind it. */}
       <div className="portal-card" ref={cardRef} data-lenis-prevent>
-        <button className="close-portal-btn" id="closePortalBtn" aria-label="Close modal" onClick={handleDismiss}>
-          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <button
+          className="close-portal-btn"
+          id="closePortalBtn"
+          aria-label="Close modal"
+          onClick={handleDismiss}
+        >
+          <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
             <path d="M13.5 4.5l-9 9m0-9l9 9" />
           </svg>
         </button>
 
         <div className="portal-pane active" id="paneRegister">
-          <div className={`success-overlay${success ? ' active' : ''}`} id="registerSuccessOverlay">
+          <div
+            className={`success-overlay${success ? " active" : ""}`}
+            id="registerSuccessOverlay"
+          >
             <div className="checkmark-circle">
-              <svg fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                viewBox="0 0 24 24"
+              >
                 <path d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="portal-title" style={{ color: '#10b981' }}>Roster Registered!</h3>
-            <p className="portal-sub" style={{ marginBottom: '0.5rem' }}>
-              Congratulations, team{' '}
-              <strong id="successTeamName" style={{ color: 'var(--primary-orange)' }}>{form.teamName}</strong>!
+            <h3 className="portal-title" style={{ color: "#10b981" }}>
+              Roster Registered!
+            </h3>
+            <p className="portal-sub" style={{ marginBottom: "0.5rem" }}>
+              Congratulations, team{" "}
+              <strong
+                id="successTeamName"
+                style={{ color: "var(--primary-orange)" }}
+              >
+                {form.teamName}
+              </strong>
+              !
             </p>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              Your team profile has been successfully registered. Check your inbox for confirmation details.
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+              Your team profile has been successfully registered. Check your
+              inbox for confirmation details.
             </p>
           </div>
 
-          <div id="registerFormContent" style={{ display: success ? 'none' : 'block' }}>
+          <div
+            id="registerFormContent"
+            style={{ display: success ? "none" : "block" }}
+          >
             <h3 className="portal-title">Join the AI Sprint</h3>
-            <p className="portal-sub">Build your team and kick off your journey</p>
+            <p className="portal-sub">
+              Build your team and kick off your journey
+            </p>
 
-            <div className="form-message error" id="registerMsg" style={{ display: errorMsg ? 'block' : 'none' }}>
+            <div
+              className="form-message error"
+              id="registerMsg"
+              style={{ display: errorMsg ? "block" : "none" }}
+            >
               {errorMsg}
             </div>
 
@@ -262,90 +316,126 @@ export default function RegisterModal() {
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="regName">Full Name (Lead Builder)</label>
+                <label className="form-label" htmlFor="regName">
+                  Full Name (Lead Builder)
+                </label>
                 <input
                   type="text"
                   id="regName"
-                  className={inputClass('fullName')}
+                  className={inputClass("fullName")}
                   placeholder="Enter your full name"
                   value={form.fullName}
-                  onChange={handleFieldChange('fullName')}
-                  onBlur={markTouched('fullName')}
+                  onChange={handleFieldChange("fullName")}
+                  onBlur={markTouched("fullName")}
                 />
-                {fieldError('fullName') && <span className="field-error">{fieldError('fullName')}</span>}
+                {fieldError("fullName") && (
+                  <span className="field-error">{fieldError("fullName")}</span>
+                )}
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="regEmail">Email Address</label>
+                <label className="form-label" htmlFor="regEmail">
+                  Email Address
+                </label>
                 <input
                   type="email"
                   id="regEmail"
-                  className={inputClass('email')}
+                  className={inputClass("email")}
                   placeholder="Enter your email address"
                   value={form.email}
-                  onChange={handleFieldChange('email')}
-                  onBlur={markTouched('email')}
+                  onChange={handleFieldChange("email")}
+                  onBlur={markTouched("email")}
                 />
-                {fieldError('email') && <span className="field-error">{fieldError('email')}</span>}
+                {fieldError("email") && (
+                  <span className="field-error">{fieldError("email")}</span>
+                )}
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="regStudentId">Student ID / Reg No</label>
+                  <label className="form-label" htmlFor="regStudentId">
+                    Student ID / Reg No
+                  </label>
                   <input
                     type="text"
                     id="regStudentId"
-                    className={inputClass('studentId')}
+                    className={inputClass("studentId")}
                     placeholder="Enter your Student ID / Reg No"
                     value={form.studentId}
-                    onChange={handleFieldChange('studentId')}
-                    onBlur={markTouched('studentId')}
+                    onChange={handleFieldChange("studentId")}
+                    onBlur={markTouched("studentId")}
                   />
-                  {fieldError('studentId') && <span className="field-error">{fieldError('studentId')}</span>}
+                  {fieldError("studentId") && (
+                    <span className="field-error">
+                      {fieldError("studentId")}
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="regFaculty">Faculty</label>
+                  <label className="form-label" htmlFor="regFaculty">
+                    Faculty
+                  </label>
                   <select
                     id="regFaculty"
-                    className={inputClass('faculty')}
+                    className={inputClass("faculty")}
                     value={form.faculty}
-                    onChange={handleFieldChange('faculty')}
-                    onBlur={markTouched('faculty')}
+                    onChange={handleFieldChange("faculty")}
+                    onBlur={markTouched("faculty")}
                   >
-                    <option value="" disabled>Select Faculty</option>
+                    <option value="" disabled>
+                      Select Faculty
+                    </option>
                     {faculties.map((faculty) => (
-                      <option key={faculty} value={faculty}>{faculty}</option>
+                      <option key={faculty} value={faculty}>
+                        {faculty}
+                      </option>
                     ))}
                   </select>
-                  {fieldError('faculty') && <span className="field-error">{fieldError('faculty')}</span>}
+                  {fieldError("faculty") && (
+                    <span className="field-error">{fieldError("faculty")}</span>
+                  )}
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="regDept">Department</label>
+                  <label className="form-label" htmlFor="regDept">
+                    Department
+                  </label>
                   <select
                     id="regDept"
-                    className={inputClass('department')}
+                    className={inputClass("department")}
                     disabled={!form.faculty}
                     value={form.department}
-                    onChange={handleFieldChange('department')}
-                    onBlur={markTouched('department')}
+                    onChange={handleFieldChange("department")}
+                    onBlur={markTouched("department")}
                   >
-                    <option value="" disabled>{form.faculty ? 'Select Department' : 'Select Faculty First'}</option>
+                    <option value="" disabled>
+                      {form.faculty
+                        ? "Select Department"
+                        : "Select Faculty First"}
+                    </option>
                     {departmentOptions.map((dept) => (
-                      <option key={dept} value={dept}>{dept}</option>
+                      <option key={dept} value={dept}>
+                        {dept}
+                      </option>
                     ))}
                   </select>
-                  {fieldError('department') && <span className="field-error">{fieldError('department')}</span>}
+                  {fieldError("department") && (
+                    <span className="field-error">
+                      {fieldError("department")}
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="regYear">Year of Study</label>
+                  <label className="form-label" htmlFor="regYear">
+                    Year of Study
+                  </label>
                   <select
                     id="regYear"
                     className="form-input"
                     value={form.yearOfStudy}
-                    onChange={handleFieldChange('yearOfStudy')}
+                    onChange={handleFieldChange("yearOfStudy")}
                   >
                     <option value="1st Year">1st Year</option>
                     <option value="2nd Year">2nd Year</option>
@@ -355,19 +445,32 @@ export default function RegisterModal() {
                 </div>
               </div>
 
-              <div className="form-row" style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-glass)', paddingTop: '1.5rem' }}>
+              <div
+                className="form-row"
+                style={{
+                  marginTop: "1.5rem",
+                  borderTop: "1px solid var(--border-glass)",
+                  paddingTop: "1.5rem",
+                }}
+              >
                 <div className="form-group">
-                  <label className="form-label" htmlFor="regTeamName">Team Name</label>
+                  <label className="form-label" htmlFor="regTeamName">
+                    Team Name
+                  </label>
                   <input
                     type="text"
                     id="regTeamName"
-                    className={inputClass('teamName')}
+                    className={inputClass("teamName")}
                     placeholder="Enter your team name"
                     value={form.teamName}
-                    onChange={handleFieldChange('teamName')}
-                    onBlur={markTouched('teamName')}
+                    onChange={handleFieldChange("teamName")}
+                    onBlur={markTouched("teamName")}
                   />
-                  {fieldError('teamName') && <span className="field-error">{fieldError('teamName')}</span>}
+                  {fieldError("teamName") && (
+                    <span className="field-error">
+                      {fieldError("teamName")}
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
                   <label className="form-label">Team Size</label>
@@ -376,7 +479,7 @@ export default function RegisterModal() {
                       <button
                         type="button"
                         key={size}
-                        className={`segment-btn${teamSize === size ? ' active' : ''}`}
+                        className={`segment-btn${teamSize === size ? " active" : ""}`}
                         data-size={size}
                         onClick={() => handleTeamSizeChange(size)}
                       >
@@ -389,8 +492,17 @@ export default function RegisterModal() {
 
               <div id="memberFieldsContainer">
                 {members.map((member, index) => (
-                  <div key={index} style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-glass)', paddingTop: '1.5rem' }}>
-                    <label className="form-label">Member {index + 2} Information</label>
+                  <div
+                    key={index}
+                    style={{
+                      marginTop: "1.5rem",
+                      borderTop: "1px solid var(--border-glass)",
+                      paddingTop: "1.5rem",
+                    }}
+                  >
+                    <label className="form-label">
+                      Member {index + 2} Information
+                    </label>
                     <div className="form-row">
                       <div className="form-group">
                         <input
@@ -398,11 +510,13 @@ export default function RegisterModal() {
                           className={inputClass(`member-${index}-name`)}
                           placeholder={`Member ${index + 2} Full Name`}
                           value={member.name}
-                          onChange={handleMemberChange(index, 'name')}
+                          onChange={handleMemberChange(index, "name")}
                           onBlur={markTouched(`member-${index}-name`)}
                         />
                         {fieldError(`member-${index}-name`) && (
-                          <span className="field-error">{fieldError(`member-${index}-name`)}</span>
+                          <span className="field-error">
+                            {fieldError(`member-${index}-name`)}
+                          </span>
                         )}
                       </div>
                       <div className="form-group">
@@ -411,11 +525,13 @@ export default function RegisterModal() {
                           className={inputClass(`member-${index}-student_id`)}
                           placeholder={`Member ${index + 2} Student ID`}
                           value={member.student_id}
-                          onChange={handleMemberChange(index, 'student_id')}
+                          onChange={handleMemberChange(index, "student_id")}
                           onBlur={markTouched(`member-${index}-student_id`)}
                         />
                         {fieldError(`member-${index}-student_id`) && (
-                          <span className="field-error">{fieldError(`member-${index}-student_id`)}</span>
+                          <span className="field-error">
+                            {fieldError(`member-${index}-student_id`)}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -424,56 +540,73 @@ export default function RegisterModal() {
                         type="email"
                         className={inputClass(`member-${index}-email`)}
                         placeholder={`Member ${index + 2} Email Address`}
-                        value={member.email || ''}
-                        onChange={handleMemberChange(index, 'email')}
+                        value={member.email || ""}
+                        onChange={handleMemberChange(index, "email")}
                         onBlur={markTouched(`member-${index}-email`)}
                       />
                       {fieldError(`member-${index}-email`) && (
-                        <span className="field-error">{fieldError(`member-${index}-email`)}</span>
+                        <span className="field-error">
+                          {fieldError(`member-${index}-email`)}
+                        </span>
                       )}
                     </div>
                     <div className="form-row">
                       <div className="form-group">
                         <select
                           className={inputClass(`member-${index}-faculty`)}
-                          value={member.faculty || ''}
-                          onChange={handleMemberChange(index, 'faculty')}
+                          value={member.faculty || ""}
+                          onChange={handleMemberChange(index, "faculty")}
                           onBlur={markTouched(`member-${index}-faculty`)}
                         >
-                          <option value="" disabled>{`Member ${index + 2} Faculty`}</option>
+                          <option
+                            value=""
+                            disabled
+                          >{`Member ${index + 2} Faculty`}</option>
                           {faculties.map((faculty) => (
-                            <option key={faculty} value={faculty}>{faculty}</option>
+                            <option key={faculty} value={faculty}>
+                              {faculty}
+                            </option>
                           ))}
                         </select>
                         {fieldError(`member-${index}-faculty`) && (
-                          <span className="field-error">{fieldError(`member-${index}-faculty`)}</span>
+                          <span className="field-error">
+                            {fieldError(`member-${index}-faculty`)}
+                          </span>
                         )}
                       </div>
                       <div className="form-group">
                         <select
                           className={inputClass(`member-${index}-department`)}
                           disabled={!member.faculty}
-                          value={member.department || ''}
-                          onChange={handleMemberChange(index, 'department')}
+                          value={member.department || ""}
+                          onChange={handleMemberChange(index, "department")}
                           onBlur={markTouched(`member-${index}-department`)}
                         >
                           <option value="" disabled>
-                            {member.faculty ? `Member ${index + 2} Department` : 'Select Faculty First'}
+                            {member.faculty
+                              ? `Member ${index + 2} Department`
+                              : "Select Faculty First"}
                           </option>
-                          {(facultyDeptData[member.faculty] || []).map((dept) => (
-                            <option key={dept} value={dept}>{dept}</option>
-                          ))}
+                          {(facultyDeptData[member.faculty] || []).map(
+                            (dept) => (
+                              <option key={dept} value={dept}>
+                                {dept}
+                              </option>
+                            ),
+                          )}
                         </select>
                         {fieldError(`member-${index}-department`) && (
-                          <span className="field-error">{fieldError(`member-${index}-department`)}</span>
+                          <span className="field-error">
+                            {fieldError(`member-${index}-department`)}
+                          </span>
                         )}
                       </div>
                     </div>
                     <div className="form-group">
                       <select
                         className="form-input"
-                        value={member.year_of_study || '1st Year'}
-                        onChange={handleMemberChange(index, 'year_of_study')}
+                        value={member.year_of_study || "1st Year"}
+                        onChange={handleMemberChange(index, "year_of_study")}
                         aria-label={`Member ${index + 2} Year of Study`}
                       >
                         <option value="1st Year">1st Year</option>
@@ -486,19 +619,30 @@ export default function RegisterModal() {
                 ))}
               </div>
 
-              <div className="form-group" style={{ marginTop: '1.5rem' }}>
+              <div className="form-group" style={{ marginTop: "1.5rem" }}>
                 {isOpen && (
                   <Turnstile
                     ref={turnstileRef}
                     onVerify={setCaptchaToken}
-                    onExpire={() => setCaptchaToken('')}
+                    onExpire={() => setCaptchaToken("")}
                   />
                 )}
               </div>
 
-              <button type="submit" className="submit-btn" style={{ marginTop: '2rem' }} disabled={submitting}>
-                <span id="registerBtnText">{submitting ? 'Registering Team...' : 'Register Team'}</span>
-                <div className="loading-spinner" id="registerSpinner" style={{ display: submitting ? 'inline-block' : 'none' }}></div>
+              <button
+                type="submit"
+                className="submit-btn"
+                style={{ marginTop: "2rem" }}
+                disabled={submitting}
+              >
+                <span id="registerBtnText">
+                  {submitting ? "Registering Team..." : "Register Team"}
+                </span>
+                <div
+                  className="loading-spinner"
+                  id="registerSpinner"
+                  style={{ display: submitting ? "inline-block" : "none" }}
+                ></div>
               </button>
             </form>
           </div>

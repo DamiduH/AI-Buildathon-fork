@@ -42,6 +42,15 @@ export default function Header() {
         <li>
           <a href="#prizes" onClick={() => setMenuOpen(false)}>Prizes</a>
         </li>
+        <li>
+          <a
+            href="#contact"
+            className="nav-contact"
+            onClick={() => setMenuOpen(false)}
+          >
+            Contact
+          </a>
+        </li>
       </ul>
       <div
         className="menu-btn"

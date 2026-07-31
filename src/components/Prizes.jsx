@@ -1,11 +1,32 @@
-import React from 'react';
+import React from "react";
 
 export default function Prizes() {
   return (
     <section className="prizes" id="prizes">
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }} className="reveal">
-        <span className="section-label">Rewards</span>
-        <h2 className="section-title" style={{ marginBottom: 0 }}>Prizes & Global Certification</h2>
+      <div
+        style={{ textAlign: "center", marginBottom: "3rem" }}
+        className="reveal"
+      >
+        <span className="section-label">THE PRIZE POOL</span>
+        <h2 className="section-title" style={{ marginBottom: 0 }}>
+          Prizes & Global Certification
+        </h2>
+        <p
+          style={{
+            color: "var(--text-secondary)",
+            fontSize: "1.1rem",
+            lineHeight: 1.8,
+            textAlign: "center",
+            maxWidth: 1100,
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+            paddingBottom: "1.5rem",
+          }}
+        >
+          Three teams. Three cash prizes.
+        </p>
       </div>
 
       <div className="prizes-grid">
@@ -30,10 +51,12 @@ export default function Prizes() {
           <div>
             <div className="prize-rank-circle rank-1st">1st</div>
             <h3 className="prize-name">Grand Prize</h3>
-            <p className="prize-sub">Winner Overall</p>
+            <p className="prize-sub">Overall Winner</p>
           </div>
           <div>
-            <div className="prize-value" style={{ fontSize: '2.6rem' }}>$1000</div>
+            <div className="prize-value" style={{ fontSize: "2.6rem" }}>
+              $1000
+            </div>
             <ul className="prize-benefits">
               <li>Alibaba Cloud Official Certificate</li>
               <li>Direct showcase to Alibaba Cloud International</li>
