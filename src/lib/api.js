@@ -30,9 +30,24 @@ async function request(path, options = {}) {
 /**
  * Submit a new team registration. All validation, Supabase Auth sign-up and
  * the `registrations` table insert happen server-side in the backend.
+ * The payload must include `otp` + `otpToken` from a completed email
+ * verification (see sendVerificationOtp).
  */
 export function registerTeam(payload) {
   return request('/registrations', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+/**
+ * Email the team leader a 6-digit verification code. Returns { otpToken,
+ * expiresInMinutes }; the token must be sent back with the code when
+ * registering. Pass the previous `otpToken` as `previousToken` to resend
+ * without a fresh CAPTCHA.
+ */
+export function sendVerificationOtp(payload) {
+  return request('/otp/send', {
     method: 'POST',
     body: JSON.stringify(payload)
   });
