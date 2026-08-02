@@ -92,7 +92,7 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
           r.student_id,
           r.faculty,
           r.department,
-          ...(Array.isArray(r.members) ? r.members.flatMap((m) => [m?.name, m?.student_id]) : [])
+          ...(Array.isArray(r.members) ? r.members.flatMap((m) => [m?.name, m?.student_id, m?.email]) : [])
         ]
           .filter(Boolean)
           .join(' ')
@@ -290,8 +290,22 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
                             <div className="grid sm:grid-cols-2 gap-3">
                               {(r.members || []).map((m, idx) => (
                                 <div key={idx} className="bg-slate-900 border border-slate-800 rounded-lg px-4 py-3">
-                                  <p className="text-white font-semibold text-sm">{m.name}</p>
+                                  <div className="flex items-center justify-between gap-2 mb-1">
+                                    <p className="text-white font-semibold text-sm">{m.name}</p>
+                                    <span className="text-[10px] uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                                      Member {idx + 2}
+                                    </span>
+                                  </div>
+                                  {m.email && <p className="text-slate-400 text-xs">{m.email}</p>}
                                   <p className="text-slate-400 text-xs">Student ID: {m.student_id}</p>
+                                  {(m.faculty || m.department) && (
+                                    <p className="text-slate-400 text-xs">
+                                      {[m.faculty, m.department].filter(Boolean).join(' · ')}
+                                    </p>
+                                  )}
+                                  {m.year_of_study && (
+                                    <p className="text-slate-400 text-xs">Year: {m.year_of_study}</p>
+                                  )}
                                 </div>
                               ))}
                             </div>
