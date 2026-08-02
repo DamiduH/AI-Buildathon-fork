@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <PortalModalProvider>
       <Head>
-        <title>AI Build-athon | Alibaba Cloud & University of Kelaniya</title>
+        <title>AI Buildathon | Alibaba Cloud & University of Kelaniya</title>
         <meta
           name="description"
           content="Official registration portal for the AI Build-athon 2026 co-organized by Alibaba Cloud International and University of Kelaniya (Department of Industrial Management). Form teams, build AI prototypes using Qoder, QoderWork & MuleRun, and win big."
