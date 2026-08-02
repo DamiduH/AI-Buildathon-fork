@@ -1,7 +1,7 @@
 export const timelineItems = [
   {
     phase: '01',
-    date: 'July 31, 2026',
+    date: 'August 2, 2026',
     title: 'Registration Opens',
     details: [
       'Portal officially live for form entries and account creations',
