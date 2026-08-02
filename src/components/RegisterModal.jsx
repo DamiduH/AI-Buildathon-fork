@@ -50,6 +50,8 @@ export default function RegisterModal() {
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resending, setResending] = useState(false);
+  // Success screen: lets the user expand a summary of what they submitted.
+  const [showDetails, setShowDetails] = useState(false);
   const turnstileRef = useRef(null);
   const cardRef = useRef(null);
   // Honeypot anti-spam field: invisible to real users, but simple bots that
@@ -116,6 +118,7 @@ export default function RegisterModal() {
     setOtpCode("");
     setResendCooldown(0);
     setResending(false);
+    setShowDetails(false);
     clearRegistrationDraft();
   };
 
@@ -259,13 +262,12 @@ export default function RegisterModal() {
       });
 
       setSuccess(true);
+      setShowDetails(false);
       // The registration is safely stored server-side now - drop the local
       // draft immediately so it can't be confused with a fresh attempt.
+      // Keep the modal open so the user can review their submitted details.
       clearRegistrationDraft();
-      setTimeout(() => {
-        closeModal();
-        resetAll();
-      }, 3500);
+      cardRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setErrorMsg(err.message || "An error occurred during registration.");
     } finally {
@@ -372,6 +374,175 @@ export default function RegisterModal() {
               Your team profile has been successfully registered. Check your
               inbox for confirmation details.
             </p>
+
+            <button
+              type="button"
+              className="submit-btn"
+              style={{
+                marginTop: "1.5rem",
+                background: showDetails
+                  ? "transparent"
+                  : "var(--primary-orange)",
+                border: showDetails
+                  ? "1px solid var(--border-glass)"
+                  : "none",
+                color: showDetails ? "var(--text-primary)" : "#fff",
+              }}
+              onClick={() => setShowDetails((open) => !open)}
+            >
+              {showDetails
+                ? "Hide registration details"
+                : "View registration details"}
+            </button>
+
+            {showDetails && (
+              <div
+                className="registration-summary"
+                style={{
+                  marginTop: "1.25rem",
+                  textAlign: "left",
+                  border: "1px solid var(--border-glass)",
+                  borderRadius: "12px",
+                  padding: "1.25rem",
+                  background: "rgba(255,255,255,0.02)",
+                }}
+              >
+                <p
+                  style={{
+                    margin: "0 0 0.85rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: "var(--primary-orange)",
+                  }}
+                >
+                  Your registration
+                </p>
+
+                <div style={{ marginBottom: "1rem" }}>
+                  <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "0.8rem" }}>
+                    Team
+                  </p>
+                  <p style={{ margin: "0.15rem 0 0", fontWeight: 600 }}>
+                    {form.teamName}{" "}
+                    <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>
+                      ({teamSize} {teamSize === 1 ? "member" : "members"})
+                    </span>
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid var(--border-glass)",
+                    paddingTop: "0.9rem",
+                    marginBottom: members.length ? "0.9rem" : 0,
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: "0 0 0.5rem",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    Lead Builder
+                  </p>
+                  <p style={{ margin: 0, fontWeight: 600 }}>{form.fullName}</p>
+                  <p style={{ margin: "0.2rem 0 0", color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                    {form.email}
+                  </p>
+                  <p style={{ margin: "0.2rem 0 0", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+                    ID: {form.studentId}
+                  </p>
+                  <p style={{ margin: "0.2rem 0 0", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+                    {[form.faculty, form.department, form.yearOfStudy]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </div>
+
+                {members.map((member, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      borderTop: "1px solid var(--border-glass)",
+                      paddingTop: "0.9rem",
+                      marginBottom:
+                        index === members.length - 1 ? 0 : "0.9rem",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: "0 0 0.5rem",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        color: "var(--text-secondary)",
+                      }}
+                    >
+                      Member {index + 2}
+                    </p>
+                    <p style={{ margin: 0, fontWeight: 600 }}>
+                      {member.name}
+                    </p>
+                    {member.email && (
+                      <p
+                        style={{
+                          margin: "0.2rem 0 0",
+                          color: "var(--text-secondary)",
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {member.email}
+                      </p>
+                    )}
+                    <p
+                      style={{
+                        margin: "0.2rem 0 0",
+                        color: "var(--text-secondary)",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      ID: {member.student_id}
+                    </p>
+                    <p
+                      style={{
+                        margin: "0.2rem 0 0",
+                        color: "var(--text-secondary)",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      {[
+                        member.faculty,
+                        member.department,
+                        member.year_of_study,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              type="button"
+              className="submit-btn"
+              style={{
+                marginTop: "1.25rem",
+                background: "transparent",
+                border: "1px solid var(--border-glass)",
+                color: "var(--text-secondary)",
+              }}
+              onClick={handleDismiss}
+            >
+              Done
+            </button>
           </div>
 
           <div
