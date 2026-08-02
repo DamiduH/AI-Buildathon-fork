@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePortalModal } from "../context/PortalModalContext.jsx";
 import { faculties, facultyDeptData } from "../data/facultyDepartments.js";
 import { registerTeam, sendVerificationOtp } from "../lib/api.js";
+import EditTeamFlow from "./EditTeamFlow.jsx";
 import Turnstile from "./Turnstile.jsx";
 import {
   clearRegistrationDraft,
@@ -52,6 +53,9 @@ export default function RegisterModal() {
   const [resending, setResending] = useState(false);
   // Success screen: lets the user expand a summary of what they submitted.
   const [showDetails, setShowDetails] = useState(false);
+  // "register" shows the normal sign-up flow; "edit" shows the flow for an
+  // existing team leader to update their members' details.
+  const [mode, setMode] = useState("register");
   const turnstileRef = useRef(null);
   const cardRef = useRef(null);
   // Honeypot anti-spam field: invisible to real users, but simple bots that
@@ -343,6 +347,17 @@ export default function RegisterModal() {
         </button>
 
         <div className="portal-pane active" id="paneRegister">
+          {mode === "edit" ? (
+            <EditTeamFlow
+              isOpen={isOpen}
+              onBack={() => setMode("register")}
+              onDone={() => {
+                setMode("register");
+                closeModal();
+              }}
+            />
+          ) : (
+            <>
           <div
             className={`success-overlay${success ? " active" : ""}`}
             id="registerSuccessOverlay"
@@ -1075,9 +1090,40 @@ export default function RegisterModal() {
                   style={{ display: submitting ? "inline-block" : "none" }}
                 ></div>
               </button>
+
+              <p
+                style={{
+                  marginTop: "1.25rem",
+                  textAlign: "center",
+                  fontSize: "0.85rem",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                Already registered?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErrorMsg("");
+                    setMode("edit");
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--primary-orange)",
+                    fontSize: "0.85rem",
+                    textDecoration: "underline",
+                    padding: 0,
+                  }}
+                >
+                  Edit your team details
+                </button>
+              </p>
             </form>
             )}
           </div>
+            </>
+          )}
         </div>
       </div>
     </div>

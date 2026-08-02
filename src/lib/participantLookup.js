@@ -12,12 +12,14 @@ const norm = (value) => String(value || '').trim().toLowerCase();
  * fast as trying to express a JSONB-array match in PostgREST filters.
  *
  * @param {Array<{ email?: string, studentId?: string, label: string }>} people
+ * @param {{ excludeRegistrationId?: string }} [options] - skip one existing
+ *   registration, so editing a team doesn't flag its own current roster.
  * @returns {Promise<{ label: string, teamName: string, matchedBy: string } | null>}
  */
-export async function findAlreadyRegistered(people) {
+export async function findAlreadyRegistered(people, options = {}) {
   const { data, error } = await supabaseAdmin
     .from('registrations')
-    .select('team_name, student_email, student_id, members');
+    .select('id, team_name, student_email, student_id, members');
 
   if (error) {
     throw new Error(`Could not check existing registrations: ${error.message}`);
@@ -27,6 +29,7 @@ export async function findAlreadyRegistered(people) {
   const studentIdToTeam = new Map();
 
   for (const row of data || []) {
+    if (options.excludeRegistrationId && row.id === options.excludeRegistrationId) continue;
     if (row.student_email) emailToTeam.set(norm(row.student_email), row.team_name);
     if (row.student_id) studentIdToTeam.set(norm(row.student_id), row.team_name);
     for (const member of Array.isArray(row.members) ? row.members : []) {

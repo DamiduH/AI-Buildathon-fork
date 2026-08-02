@@ -44,10 +44,33 @@ export function registerTeam(payload) {
  * Email the team leader a 6-digit verification code. Returns { otpToken,
  * expiresInMinutes }; the token must be sent back with the code when
  * registering. Pass the previous `otpToken` as `previousToken` to resend
- * without a fresh CAPTCHA.
+ * without a fresh CAPTCHA. Pass `mode: 'edit'` when an existing leader is
+ * verifying to edit their team (their email must already be registered).
  */
 export function sendVerificationOtp(payload) {
   return request('/otp/send', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+/**
+ * Fetch the caller's saved registration (leader only, proven via OTP).
+ * Payload: { email, otp, otpToken }.
+ */
+export function fetchTeamForEdit(payload) {
+  return request('/registrations/details', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+/**
+ * Replace the team's member list (leader only, proven via OTP).
+ * Payload: { email, otp, otpToken, members }.
+ */
+export function updateTeamMembers(payload) {
+  return request('/registrations/update', {
     method: 'POST',
     body: JSON.stringify(payload)
   });

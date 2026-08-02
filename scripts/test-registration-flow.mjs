@@ -137,6 +137,72 @@ const reg3 = await post('/registrations', {
 });
 check('Duplicate person within one submission rejected (400)', reg3.status === 400, JSON.stringify(reg3));
 
+// --- EDIT FLOW (leader verifies, member details editable) ---
+
+// 7) A non-leader (member) cannot start the edit flow
+const editSendMember = await post('/otp/send', { email: MEMBER_A, mode: 'edit' });
+check('Edit OTP rejected for non-leader (404)', editSendMember.status === 404, JSON.stringify(editSendMember));
+
+// 8) The leader can start the edit flow (no full_name needed in edit mode)
+const editSend = await post('/otp/send', { email: LEADER_A, mode: 'edit' });
+check('Edit OTP issued for leader', editSend.status === 200 && !!editSend.body.otpToken, JSON.stringify(editSend));
+
+// 9) Team details load after OTP verification
+const details = await post('/registrations/details', {
+  email: LEADER_A,
+  otp: '000000',
+  otpToken: editSend.body.otpToken
+});
+check(
+  'Team details fetched for leader',
+  details.status === 200 && details.body.registration?.team_name === 'TEST Team Alpha' && details.body.registration?.members?.length === 1,
+  JSON.stringify(details)
+);
+
+// 10) Member details can be updated
+const update = await post('/registrations/update', {
+  email: LEADER_A,
+  otp: '000000',
+  otpToken: editSend.body.otpToken,
+  members: [{
+    name: 'Test Member A Renamed',
+    email: MEMBER_A,
+    student_id: 'TEST/0002/A2',
+    faculty: 'Faculty of Science',
+    department: 'Test Department',
+    year_of_study: '3rd Year'
+  }]
+});
+check(
+  'Member details updated',
+  update.status === 200 && update.body.registration?.members?.[0]?.name === 'Test Member A Renamed',
+  JSON.stringify(update)
+);
+
+// 11) The leader cannot be added as a member of their own team
+const updateBad = await post('/registrations/update', {
+  email: LEADER_A,
+  otp: '000000',
+  otpToken: editSend.body.otpToken,
+  members: [{
+    name: 'Leader As Member',
+    email: LEADER_A,
+    student_id: 'TEST/0001/A',
+    faculty: 'Faculty of Science',
+    department: 'Test Department',
+    year_of_study: '2nd Year'
+  }]
+});
+check('Leader-as-member update rejected (400)', updateBad.status === 400, JSON.stringify(updateBad));
+
+// 12) Wrong OTP cannot fetch team details
+const detailsBad = await post('/registrations/details', {
+  email: LEADER_A,
+  otp: '999999',
+  otpToken: editSend.body.otpToken
+});
+check('Details with wrong OTP rejected (400)', detailsBad.status === 400, JSON.stringify(detailsBad));
+
 await cleanup();
 console.log(failures === 0 ? '\nAll checks passed. Test data cleaned up.' : `\n${failures} check(s) FAILED. Test data cleaned up.`);
 process.exit(failures === 0 ? 0 : 1);
