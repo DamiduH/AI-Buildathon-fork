@@ -233,10 +233,8 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
                       Team{sortIndicator('team_name')}
                     </th>
                     <th className="px-4 py-3 cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort('full_name')}>
-                      Lead{sortIndicator('full_name')}
+                      Lead Builder{sortIndicator('full_name')}
                     </th>
-                    <th className="px-4 py-3 whitespace-nowrap">Email</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Student ID</th>
                     <th className="px-4 py-3 cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort('faculty')}>
                       Faculty{sortIndicator('faculty')}
                     </th>
@@ -253,7 +251,7 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
                 <tbody>
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="px-4 py-10 text-center text-slate-500">
+                      <td colSpan={6} className="px-4 py-10 text-center text-slate-500">
                         No registrations {query ? 'match your search' : 'yet'}.
                       </td>
                     </tr>
@@ -262,9 +260,11 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
                     <Fragment key={r.id}>
                       <tr className="border-b border-slate-800/60 hover:bg-slate-800/30 transition">
                         <td className="px-4 py-3 font-semibold text-white whitespace-nowrap">{r.team_name}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{r.full_name}</td>
-                        <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{r.student_email}</td>
-                        <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{r.student_id}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <p className="text-slate-100 font-medium">{r.full_name}</p>
+                          <p className="text-slate-400 text-xs">{r.student_email}</p>
+                          <p className="text-slate-500 text-xs">ID: {r.student_id}</p>
+                        </td>
                         <td className="px-4 py-3 whitespace-nowrap">{r.faculty}</td>
                         <td className="px-4 py-3 whitespace-nowrap">{r.team_size}</td>
                         <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{formatDate(r.created_at)}</td>
@@ -273,16 +273,20 @@ export default function AdminDashboard({ adminEmail, initialRegistrations, loadE
                             <button
                               type="button"
                               onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
-                              className="text-brand-orange text-xs font-semibold hover:underline"
+                              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition ${
+                                expandedId === r.id
+                                  ? 'bg-cyan-500/25 text-cyan-200 border-cyan-400/50'
+                                  : 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/20'
+                              }`}
                             >
-                              {expandedId === r.id ? 'Hide' : 'Members'}
+                              {expandedId === r.id ? 'Hide' : `Members (${r.team_size - 1})`}
                             </button>
                           )}
                         </td>
                       </tr>
                       {expandedId === r.id && (
                         <tr className="bg-slate-950/60">
-                          <td colSpan={8} className="px-4 py-4">
+                          <td colSpan={6} className="px-4 py-4">
                             <p className="text-xs uppercase tracking-wider text-slate-500 mb-2">
                               Department: <span className="text-slate-300">{r.department}</span> · Year:{' '}
                               <span className="text-slate-300">{r.year_of_study}</span>
