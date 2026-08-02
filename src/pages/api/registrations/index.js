@@ -1,10 +1,11 @@
 import crypto from 'crypto';
 import { applyCors } from '../../../lib/cors.js';
+import { sendWelcomeEmail } from '../../../lib/email.js';
+import { verifyOtpToken } from '../../../lib/otpToken.js';
 import { checkRateLimit } from '../../../lib/rateLimit.js';
 import { getClientIp } from '../../../lib/requestIp.js';
 import { isSupabaseConfigured, supabaseAdmin, supabaseConfigError } from '../../../lib/supabaseAdmin.js';
 import { validateRegistration } from '../../../lib/validateRegistration.js';
-import { verifyTurnstileToken } from '../../../lib/verifyTurnstile.js';
 
 // Generates a random password for the Supabase Auth user created on behalf
 // of the registrant. Nobody needs to know/use this password today - it just
@@ -53,15 +54,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid submission.' });
   }
 
-  const { captchaToken } = req.body || {};
-  const captchaResult = await verifyTurnstileToken(captchaToken, clientIp);
-  if (!captchaResult.success) {
-    return res.status(400).json({ error: captchaResult.error });
-  }
-
   const { valid, data, error: validationError } = validateRegistration(req.body);
   if (!valid) {
     return res.status(400).json({ error: validationError });
+  }
+
+  // Email verification replaces the CAPTCHA check that used to live here:
+  // the CAPTCHA is now verified when the OTP is SENT (see /api/otp/send),
+  // and the signed token below can only exist if that step succeeded. The
+  // token also proves the team leader controls the inbox they registered.
+  const { otp, otpToken } = req.body || {};
+  const otpResult = verifyOtpToken(otpToken, data.email, otp);
+  if (!otpResult.valid) {
+    return res.status(400).json({ error: otpResult.error });
   }
 
   if (!isSupabaseConfigured) {
@@ -123,6 +128,21 @@ export default async function handler(req, res) {
       // retry with the same email doesn't hit "already registered".
       await supabaseAdmin.auth.admin.deleteUser(user.id).catch(() => {});
       return res.status(500).json({ error: `Registration failed while saving your profile: ${dbError.message}` });
+    }
+
+    // 3) Welcome email to the whole team (leader + members). Deliberately
+    // non-fatal: the registration is already saved, so an email hiccup must
+    // not turn a successful sign-up into an error for the user.
+    try {
+      const recipients = [data.email, ...data.members.map((m) => m.email)];
+      await sendWelcomeEmail({
+        to: [...new Set(recipients)],
+        fullName: data.full_name,
+        teamName: data.team_name,
+        teamSize: data.team_size
+      });
+    } catch (emailErr) {
+      console.error('[api/registrations] welcome email failed:', emailErr);
     }
 
     return res.status(201).json({

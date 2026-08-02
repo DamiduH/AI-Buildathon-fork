@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePortalModal } from "../context/PortalModalContext.jsx";
 import { faculties, facultyDeptData } from "../data/facultyDepartments.js";
-import { registerTeam } from "../lib/api.js";
+import { registerTeam, sendVerificationOtp } from "../lib/api.js";
 import Turnstile from "./Turnstile.jsx";
 import {
   clearRegistrationDraft,
@@ -41,6 +41,15 @@ export default function RegisterModal() {
   const [errorMsg, setErrorMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
+  // Email verification (OTP) step. "details" shows the registration form;
+  // "otp" shows the 6-digit code entry after the code has been emailed to
+  // the team leader. The otpToken is the server-signed proof of which email
+  // the code was sent to - it goes back up with the code on final submit.
+  const [step, setStep] = useState("details");
+  const [otpToken, setOtpToken] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
   const turnstileRef = useRef(null);
   const cardRef = useRef(null);
   // Honeypot anti-spam field: invisible to real users, but simple bots that
@@ -84,6 +93,13 @@ export default function RegisterModal() {
     }
   }, [errorMsg]);
 
+  // Ticks the "Resend code in Ns" countdown once per second.
+  useEffect(() => {
+    if (resendCooldown <= 0) return undefined;
+    const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
   const resetAll = () => {
     setForm(initialFormState);
     setTeamSize(1);
@@ -95,6 +111,11 @@ export default function RegisterModal() {
     setCaptchaToken("");
     turnstileRef.current?.reset();
     setHoneypot("");
+    setStep("details");
+    setOtpToken("");
+    setOtpCode("");
+    setResendCooldown(0);
+    setResending(false);
     clearRegistrationDraft();
   };
 
@@ -144,6 +165,9 @@ export default function RegisterModal() {
     });
   };
 
+  // Step 1: validate the form, then email a 6-digit verification code to
+  // the team leader instead of registering straight away. The CAPTCHA is
+  // spent here - the returned otpToken is what authorises the final submit.
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -170,6 +194,46 @@ export default function RegisterModal() {
     setSubmitting(true);
 
     try {
+      const data = await sendVerificationOtp({
+        email: form.email.trim(),
+        full_name: form.fullName.trim(),
+        captchaToken,
+        company_website: honeypot,
+      });
+
+      setOtpToken(data.otpToken);
+      setOtpCode("");
+      setStep("otp");
+      setResendCooldown(60);
+      cardRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      setErrorMsg(
+        err.message || "Could not send the verification email. Please try again.",
+      );
+    } finally {
+      // Turnstile tokens are single-use - the send attempt (successful or
+      // not) consumed it, so force a fresh challenge for any re-submit.
+      setCaptchaToken("");
+      turnstileRef.current?.reset();
+      setSubmitting(false);
+    }
+  };
+
+  // Step 2: submit the registration together with the code the leader typed
+  // and the signed otpToken. The backend verifies both before saving the
+  // team and then emails the welcome message.
+  const handleVerifyAndRegister = async (e) => {
+    e.preventDefault();
+
+    if (!/^\d{6}$/.test(otpCode.trim())) {
+      setErrorMsg("Please enter the 6-digit code we emailed you.");
+      return;
+    }
+
+    setErrorMsg("");
+    setSubmitting(true);
+
+    try {
       await registerTeam({
         full_name: form.fullName.trim(),
         email: form.email.trim(),
@@ -189,7 +253,8 @@ export default function RegisterModal() {
           year_of_study: member.year_of_study || "1st Year",
         })),
         tools_interested: [],
-        captchaToken,
+        otp: otpCode.trim(),
+        otpToken,
         company_website: honeypot,
       });
 
@@ -203,14 +268,43 @@ export default function RegisterModal() {
       }, 3500);
     } catch (err) {
       setErrorMsg(err.message || "An error occurred during registration.");
-      // Turnstile tokens are single-use - whether the failure was the
-      // CAPTCHA itself or something else (e.g. duplicate email), the spent
-      // token can no longer be redeemed, so force a fresh challenge.
-      setCaptchaToken("");
-      turnstileRef.current?.reset();
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // "Resend code": no fresh CAPTCHA needed - the previous otpToken proves
+  // the original send already passed one. Rate-limited server-side.
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0 || resending || submitting) return;
+
+    setErrorMsg("");
+    setResending(true);
+    try {
+      const data = await sendVerificationOtp({
+        email: form.email.trim(),
+        full_name: form.fullName.trim(),
+        previousToken: otpToken,
+        company_website: honeypot,
+      });
+      setOtpToken(data.otpToken);
+      setOtpCode("");
+      setResendCooldown(60);
+    } catch (err) {
+      setErrorMsg(
+        err.message || "Could not resend the code. Please try again.",
+      );
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // Back from the OTP step to fix a typo in the details (e.g. wrong email).
+  // Re-submitting will require a fresh CAPTCHA + send a new code.
+  const handleBackToDetails = () => {
+    setStep("details");
+    setOtpCode("");
+    setErrorMsg("");
   };
 
   const fieldError = (key) => (touched[key] && errors[key] ? errors[key] : "");
@@ -284,9 +378,20 @@ export default function RegisterModal() {
             id="registerFormContent"
             style={{ display: success ? "none" : "block" }}
           >
-            <h3 className="portal-title">Join the AI Sprint</h3>
+            <h3 className="portal-title">
+              {step === "otp" ? "Verify Your Email" : "Join the AI Sprint"}
+            </h3>
             <p className="portal-sub">
-              Build your team and kick off your journey
+              {step === "otp" ? (
+                <>
+                  Enter the 6-digit code we sent to{" "}
+                  <strong style={{ color: "var(--primary-orange)" }}>
+                    {form.email.trim()}
+                  </strong>
+                </>
+              ) : (
+                "Build your team and kick off your journey"
+              )}
             </p>
 
             <div
@@ -297,6 +402,119 @@ export default function RegisterModal() {
               {errorMsg}
             </div>
 
+            {step === "otp" ? (
+              <form id="otpForm" onSubmit={handleVerifyAndRegister} noValidate>
+                <div
+                  className="form-group"
+                  style={{ marginTop: "1.5rem", textAlign: "center" }}
+                >
+                  <label className="form-label" htmlFor="otpInput">
+                    Verification Code
+                  </label>
+                  <input
+                    type="text"
+                    id="otpInput"
+                    className="form-input"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="000000"
+                    autoFocus
+                    value={otpCode}
+                    onChange={(e) =>
+                      setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                    style={{
+                      textAlign: "center",
+                      fontSize: "1.6rem",
+                      letterSpacing: "0.5em",
+                      fontFamily: "'Courier New', Courier, monospace",
+                    }}
+                  />
+                  <p
+                    style={{
+                      marginTop: "0.75rem",
+                      color: "var(--text-secondary)",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    The code expires in 10 minutes. Check your spam folder if
+                    you can&rsquo;t find it.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  style={{ marginTop: "1rem" }}
+                  disabled={submitting || otpCode.length !== 6}
+                >
+                  <span>
+                    {submitting
+                      ? "Verifying & Registering..."
+                      : "Verify & Register Team"}
+                  </span>
+                  <div
+                    className="loading-spinner"
+                    style={{
+                      display: submitting ? "inline-block" : "none",
+                    }}
+                  ></div>
+                </button>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginTop: "1.25rem",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={handleBackToDetails}
+                    disabled={submitting}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "var(--text-secondary)",
+                      fontSize: "0.85rem",
+                      textDecoration: "underline",
+                      padding: 0,
+                    }}
+                  >
+                    ← Edit details
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resendCooldown > 0 || resending || submitting}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor:
+                        resendCooldown > 0 || resending
+                          ? "not-allowed"
+                          : "pointer",
+                      color:
+                        resendCooldown > 0 || resending
+                          ? "var(--text-secondary)"
+                          : "var(--primary-orange)",
+                      fontSize: "0.85rem",
+                      textDecoration: "underline",
+                      padding: 0,
+                    }}
+                  >
+                    {resending
+                      ? "Sending..."
+                      : resendCooldown > 0
+                        ? `Resend code in ${resendCooldown}s`
+                        : "Resend code"}
+                  </button>
+                </div>
+              </form>
+            ) : (
             <form id="registerForm" onSubmit={handleSubmit} noValidate>
               {/* Honeypot: visually hidden from real users (off-screen, not
                   display:none - some bots skip display:none fields) and
@@ -636,7 +854,9 @@ export default function RegisterModal() {
                 disabled={submitting}
               >
                 <span id="registerBtnText">
-                  {submitting ? "Registering Team..." : "Register Team"}
+                  {submitting
+                    ? "Sending Verification Code..."
+                    : "Register Team"}
                 </span>
                 <div
                   className="loading-spinner"
@@ -645,6 +865,7 @@ export default function RegisterModal() {
                 ></div>
               </button>
             </form>
+            )}
           </div>
         </div>
       </div>

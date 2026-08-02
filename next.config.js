@@ -82,6 +82,16 @@ function adminCsp() {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // The OTP/welcome email templates are plain .html files read from disk at
+  // runtime (src/lib/email.js). Serverless bundlers only include files they
+  // can statically trace, so explicitly include them for the routes that
+  // send email - otherwise emails break in production with ENOENT.
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/otp/send': ['./src/*.html'],
+      '/api/registrations': ['./src/*.html']
+    }
+  },
   // This backend serves the public JSON API (consumed by the separate
   // React/Vite frontend) plus a same-origin-only /admin dashboard. Only the
   // public routes get cross-origin CORS headers for the frontend's origin -
@@ -102,6 +112,10 @@ const nextConfig = {
       },
       {
         source: '/api/registrations/:path*',
+        headers: corsHeaders()
+      },
+      {
+        source: '/api/otp/:path*',
         headers: corsHeaders()
       },
       {
