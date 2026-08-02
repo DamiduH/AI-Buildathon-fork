@@ -58,8 +58,7 @@ export default function Prizes() {
             </div>
             <ul className="prize-benefits">
               <li>Alibaba Cloud Official Certificate</li>
-              <li>Direct showcase to Alibaba Cloud International</li>
-              <li>Internship and project grant pathways</li>
+              <li>Cloud platform credits</li>
             </ul>
           </div>
         </div>

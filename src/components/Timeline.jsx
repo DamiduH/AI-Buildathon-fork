@@ -46,7 +46,7 @@ export default function Timeline({ techContainerRef }) {
 
         {timelineItems.map((item) => (
           <div
-            className="timeline-item reveal"
+            className="timeline-item"
             data-phase={item.phase}
             key={item.phase}
           >
@@ -54,7 +54,7 @@ export default function Timeline({ techContainerRef }) {
               <span className="timeline-phase">{item.phase}</span>
               <div className="timeline-dot"></div>
             </div>
-            <div className="timeline-content">
+            <div className="timeline-content reveal">
               <div
                 className="timeline-content-header"
                 style={{
