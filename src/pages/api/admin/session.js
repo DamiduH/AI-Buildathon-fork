@@ -56,7 +56,12 @@ export default async function handler(req, res) {
   try {
     const decoded = await firebaseAdminAuth.verifyIdToken(idToken);
 
-    if (!decoded.email || !decoded.email_verified) {
+    // Email/password admin accounts are created by hand in the Firebase
+    // console and never go through an email-verification flow, so the
+    // verified-email requirement only applies to Google sign-ins. The
+    // ADMIN_EMAILS allowlist below is the real gate for both methods.
+    const isPasswordSignIn = decoded.firebase?.sign_in_provider === 'password';
+    if (!decoded.email || (!decoded.email_verified && !isPasswordSignIn)) {
       return res.status(403).json({ error: 'Your Google account email is not verified.' });
     }
 
