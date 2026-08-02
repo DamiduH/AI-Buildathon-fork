@@ -8,10 +8,17 @@ import {
   generateOtp,
   isTokenIssuedByUs
 } from '../../../lib/otpToken.js';
-import { isSupabaseConfigured, supabaseAdmin } from '../../../lib/supabaseAdmin.js';
+import { findAlreadyRegistered } from '../../../lib/participantLookup.js';
+import { isSupabaseConfigured } from '../../../lib/supabaseAdmin.js';
 import { verifyTurnstileToken } from '../../../lib/verifyTurnstile.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// TESTING ONLY (OTP_TEST_MODE=true): no email is sent and the fixed code
+// 000000 is accepted, so the whole registration flow can be exercised
+// without a working mail setup. Also skips the CAPTCHA for scripted tests.
+const isTestMode = () => process.env.OTP_TEST_MODE === 'true';
+const TEST_OTP = '000000';
 
 // Per-IP and per-mailbox caps. The mailbox cap is the important one - it
 // stops the endpoint being abused to flood a victim's inbox even from many
@@ -65,34 +72,42 @@ export default async function handler(req, res) {
   // previously issued OTP token: its valid signature proves the ORIGINAL
   // send for this same email already passed the CAPTCHA.
   const isAuthorisedResend = previousToken && isTokenIssuedByUs(previousToken, cleanEmail);
-  if (!isAuthorisedResend) {
+  if (!isAuthorisedResend && !isTestMode()) {
     const captchaResult = await verifyTurnstileToken(captchaToken, clientIp);
     if (!captchaResult.success) {
       return res.status(400).json({ error: captchaResult.error });
     }
   }
 
-  if (!isEmailConfigured()) {
+  if (!isEmailConfigured() && !isTestMode()) {
     console.error('[api/otp/send] RESEND_API_KEY is not configured.');
     return res.status(503).json({ error: 'Email verification is not available right now. Please try again later.' });
   }
 
-  // Catch already-registered emails BEFORE the user goes through the whole
-  // OTP dance, instead of failing at the very end of the flow.
+  // Catch already-registered leaders BEFORE the user goes through the whole
+  // OTP dance, instead of failing at the very end of the flow. One person =
+  // one team, so being a member of another team also blocks registering.
   if (isSupabaseConfigured) {
     try {
-      const { data: existing } = await supabaseAdmin
-        .from('registrations')
-        .select('id')
-        .eq('student_email', cleanEmail)
-        .maybeSingle();
-      if (existing) {
-        return res.status(409).json({ error: 'This email address is already registered.' });
+      const conflict = await findAlreadyRegistered([{ email: cleanEmail, label: 'This email' }]);
+      if (conflict) {
+        return res.status(409).json({
+          error: `This email is already registered with team "${conflict.teamName}". Each person can only be part of one team.`
+        });
       }
     } catch (err) {
       // Non-fatal: worst case the duplicate is caught at registration time.
-      console.warn('[api/otp/send] duplicate-email pre-check failed:', err.message);
+      console.warn('[api/otp/send] duplicate pre-check failed:', err.message);
     }
+  }
+
+  if (isTestMode()) {
+    console.warn(`[api/otp/send] OTP_TEST_MODE active - no email sent to ${cleanEmail}, accepting fixed code ${TEST_OTP}.`);
+    return res.status(200).json({
+      message: 'Test mode: no email sent. Use code 000000.',
+      otpToken: createOtpToken(cleanEmail, TEST_OTP),
+      expiresInMinutes: OTP_EXPIRY_MINUTES
+    });
   }
 
   try {

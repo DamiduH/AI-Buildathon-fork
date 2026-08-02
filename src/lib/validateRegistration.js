@@ -108,6 +108,17 @@ export function validateRegistration(body) {
     }
   }
 
+  // The same person must not appear twice within one team (e.g. the leader
+  // also listed as member 2, or the same friend entered twice).
+  const allEmails = [email, ...memberList.map((m) => m.email)].map((e) => e.trim().toLowerCase());
+  if (new Set(allEmails).size !== allEmails.length) {
+    return { valid: false, error: 'Each team member must have a different email address.' };
+  }
+  const allStudentIds = [student_id, ...memberList.map((m) => m.student_id)].map((s) => s.trim().toLowerCase());
+  if (new Set(allStudentIds).size !== allStudentIds.length) {
+    return { valid: false, error: 'Each team member must have a different student ID.' };
+  }
+
   // tools_interested is optional and currently unused by the form (always
   // sent as []), but since it's client-supplied, don't trust its shape or
   // size blindly - keep only well-formed, reasonably-sized string entries.

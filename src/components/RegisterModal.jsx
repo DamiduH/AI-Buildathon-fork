@@ -723,10 +723,17 @@ export default function RegisterModal() {
                     </label>
                     <div className="form-row">
                       <div className="form-group">
+                        <label
+                          className="form-label"
+                          htmlFor={`member-${index}-name`}
+                        >
+                          Full Name
+                        </label>
                         <input
                           type="text"
+                          id={`member-${index}-name`}
                           className={inputClass(`member-${index}-name`)}
-                          placeholder={`Member ${index + 2} Full Name`}
+                          placeholder="Enter full name"
                           value={member.name}
                           onChange={handleMemberChange(index, "name")}
                           onBlur={markTouched(`member-${index}-name`)}
@@ -738,10 +745,17 @@ export default function RegisterModal() {
                         )}
                       </div>
                       <div className="form-group">
+                        <label
+                          className="form-label"
+                          htmlFor={`member-${index}-student_id`}
+                        >
+                          Student ID / Reg No
+                        </label>
                         <input
                           type="text"
+                          id={`member-${index}-student_id`}
                           className={inputClass(`member-${index}-student_id`)}
-                          placeholder={`Member ${index + 2} Student ID`}
+                          placeholder="Enter Student ID / Reg No"
                           value={member.student_id}
                           onChange={handleMemberChange(index, "student_id")}
                           onBlur={markTouched(`member-${index}-student_id`)}
@@ -754,10 +768,17 @@ export default function RegisterModal() {
                       </div>
                     </div>
                     <div className="form-group">
+                      <label
+                        className="form-label"
+                        htmlFor={`member-${index}-email`}
+                      >
+                        Email Address
+                      </label>
                       <input
                         type="email"
+                        id={`member-${index}-email`}
                         className={inputClass(`member-${index}-email`)}
-                        placeholder={`Member ${index + 2} Email Address`}
+                        placeholder="Enter email address"
                         value={member.email || ""}
                         onChange={handleMemberChange(index, "email")}
                         onBlur={markTouched(`member-${index}-email`)}
@@ -770,16 +791,22 @@ export default function RegisterModal() {
                     </div>
                     <div className="form-row">
                       <div className="form-group">
+                        <label
+                          className="form-label"
+                          htmlFor={`member-${index}-faculty`}
+                        >
+                          Faculty
+                        </label>
                         <select
+                          id={`member-${index}-faculty`}
                           className={inputClass(`member-${index}-faculty`)}
                           value={member.faculty || ""}
                           onChange={handleMemberChange(index, "faculty")}
                           onBlur={markTouched(`member-${index}-faculty`)}
                         >
-                          <option
-                            value=""
-                            disabled
-                          >{`Member ${index + 2} Faculty`}</option>
+                          <option value="" disabled>
+                            Select Faculty
+                          </option>
                           {faculties.map((faculty) => (
                             <option key={faculty} value={faculty}>
                               {faculty}
@@ -793,7 +820,14 @@ export default function RegisterModal() {
                         )}
                       </div>
                       <div className="form-group">
+                        <label
+                          className="form-label"
+                          htmlFor={`member-${index}-department`}
+                        >
+                          Department
+                        </label>
                         <select
+                          id={`member-${index}-department`}
                           className={inputClass(`member-${index}-department`)}
                           disabled={!member.faculty}
                           value={member.department || ""}
@@ -802,7 +836,7 @@ export default function RegisterModal() {
                         >
                           <option value="" disabled>
                             {member.faculty
-                              ? `Member ${index + 2} Department`
+                              ? "Select Department"
                               : "Select Faculty First"}
                           </option>
                           {(facultyDeptData[member.faculty] || []).map(
@@ -821,11 +855,17 @@ export default function RegisterModal() {
                       </div>
                     </div>
                     <div className="form-group">
+                      <label
+                        className="form-label"
+                        htmlFor={`member-${index}-year`}
+                      >
+                        Year of Study
+                      </label>
                       <select
+                        id={`member-${index}-year`}
                         className="form-input"
                         value={member.year_of_study || "1st Year"}
                         onChange={handleMemberChange(index, "year_of_study")}
-                        aria-label={`Member ${index + 2} Year of Study`}
                       >
                         <option value="1st Year">1st Year</option>
                         <option value="2nd Year">2nd Year</option>
