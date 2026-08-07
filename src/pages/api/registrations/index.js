@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { applyCors } from '../../../lib/cors.js';
 import { sendWelcomeEmail } from '../../../lib/email.js';
 import { verifyOtpToken } from '../../../lib/otpToken.js';
+import { findAlreadyRegistered } from '../../../lib/participantLookup.js';
 import { checkRateLimit } from '../../../lib/rateLimit.js';
 import { getClientIp } from '../../../lib/requestIp.js';
 import { isSupabaseConfigured, supabaseAdmin, supabaseConfigError } from '../../../lib/supabaseAdmin.js';
@@ -78,6 +79,20 @@ export default async function handler(req, res) {
   }
 
   try {
+    // 0) One person = one team. Block the whole submission if the leader OR
+    // any member is already registered anywhere (as a leader or a member),
+    // matched by email or student ID. Runs before the Auth user is created
+    // so a rejected team leaves nothing behind to clean up.
+    const conflict = await findAlreadyRegistered([
+      { email: data.email, studentId: data.student_id, label: data.full_name },
+      ...data.members.map((m) => ({ email: m.email, studentId: m.student_id, label: m.name }))
+    ]);
+    if (conflict) {
+      return res.status(409).json({
+        error: `${conflict.label} is already registered with team "${conflict.teamName}" (matched by ${conflict.matchedBy}). Each person can only be part of one team.`
+      });
+    }
+
     // 1) Create the Supabase Auth user server-side using the service role key.
     const { data: createdUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
@@ -132,17 +147,22 @@ export default async function handler(req, res) {
 
     // 3) Welcome email to the whole team (leader + members). Deliberately
     // non-fatal: the registration is already saved, so an email hiccup must
-    // not turn a successful sign-up into an error for the user.
-    try {
-      const recipients = [data.email, ...data.members.map((m) => m.email)];
-      await sendWelcomeEmail({
-        to: [...new Set(recipients)],
-        fullName: data.full_name,
-        teamName: data.team_name,
-        teamSize: data.team_size
-      });
-    } catch (emailErr) {
-      console.error('[api/registrations] welcome email failed:', emailErr);
+    // not turn a successful sign-up into an error for the user. Skipped
+    // entirely in OTP_TEST_MODE so test registrations send no real mail.
+    if (process.env.OTP_TEST_MODE === 'true') {
+      console.warn('[api/registrations] OTP_TEST_MODE active - welcome email skipped.');
+    } else {
+      try {
+        const recipients = [data.email, ...data.members.map((m) => m.email)];
+        await sendWelcomeEmail({
+          to: [...new Set(recipients)],
+          fullName: data.full_name,
+          teamName: data.team_name,
+          teamSize: data.team_size
+        });
+      } catch (emailErr) {
+        console.error('[api/registrations] welcome email failed:', emailErr);
+      }
     }
 
     return res.status(201).json({

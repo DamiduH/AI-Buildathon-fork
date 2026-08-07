@@ -62,9 +62,12 @@ export async function getAdminFromRequest(req) {
 
   try {
     // `checkRevoked: true` also rejects sessions belonging to a since-deleted
-    // or since-disabled Google account.
+    // or since-disabled account.
     const decoded = await firebaseAdminAuth.verifySessionCookie(sessionCookie, true);
-    if (!decoded.email || !decoded.email_verified) return null;
+    // Email/password admin accounts (created by hand in the Firebase
+    // console) are never email-verified - the allowlist below is their gate.
+    const isPasswordSignIn = decoded.firebase?.sign_in_provider === 'password';
+    if (!decoded.email || (!decoded.email_verified && !isPasswordSignIn)) return null;
     if (!isEmailAllowed(decoded.email)) return null;
     return decoded;
   } catch {

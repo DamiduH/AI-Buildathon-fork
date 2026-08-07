@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { signInWithPopup, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 import { getAdminFromRequest } from '../../lib/adminAuth.js';
 import { createGoogleProvider, getFirebaseAuth } from '../../lib/firebaseClient.js';
 
@@ -14,12 +14,51 @@ export async function getServerSideProps({ req }) {
   return { props: {} };
 }
 
+// Firebase's error codes are technical; show admins something readable.
+function friendlyAuthError(err) {
+  switch (err?.code) {
+    case 'auth/popup-closed-by-user':
+      return 'Sign-in was cancelled.';
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Incorrect email or password.';
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.';
+    case 'auth/too-many-requests':
+      return 'Too many failed attempts. Please wait a bit and try again.';
+    case 'auth/operation-not-allowed':
+      return 'Email/password sign-in is not enabled in Firebase yet.';
+    default:
+      return err?.message || 'Sign-in failed. Please try again.';
+  }
+}
+
 export default function AdminLogin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSignIn = async () => {
+  // Shared final step for both sign-in methods: exchange the Firebase ID
+  // token for the httpOnly session cookie (which is where the ADMIN_EMAILS
+  // allowlist is enforced server-side).
+  const exchangeForSession = async (user) => {
+    const idToken = await user.getIdToken();
+    const res = await fetch('/api/admin/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken })
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(body.error || 'Sign-in failed.');
+    }
+    await router.replace('/admin');
+  };
+
+  const handleGoogleSignIn = async () => {
     setError('');
     setLoading(true);
 
@@ -27,28 +66,36 @@ export default function AdminLogin() {
     try {
       auth = getFirebaseAuth();
       const result = await signInWithPopup(auth, createGoogleProvider());
-      const idToken = await result.user.getIdToken();
-
-      const res = await fetch('/api/admin/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken })
-      });
-      const body = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(body.error || 'Sign-in failed.');
-      }
-
-      await router.replace('/admin');
+      await exchangeForSession(result.user);
     } catch (err) {
       // Never leave an unapproved Google session lingering client-side.
       await signOut(auth || getFirebaseAuth()).catch(() => {});
-      const message =
-        err?.code === 'auth/popup-closed-by-user'
-          ? 'Sign-in was cancelled.'
-          : err?.message || 'Sign-in failed. Please try again.';
-      setError(message);
+      setError(friendlyAuthError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordSignIn = async (e) => {
+    e.preventDefault();
+    if (!email.trim() || !password) {
+      setError('Please enter your email and password.');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    let auth;
+    try {
+      auth = getFirebaseAuth();
+      const result = await signInWithEmailAndPassword(auth, email.trim(), password);
+      await exchangeForSession(result.user);
+    } catch (err) {
+      // Same hygiene as Google sign-in: if the server rejected the account
+      // (e.g. not on the allowlist), don't keep the Firebase session around.
+      await signOut(auth || getFirebaseAuth()).catch(() => {});
+      setError(friendlyAuthError(err));
     } finally {
       setLoading(false);
     }
@@ -76,9 +123,51 @@ export default function AdminLogin() {
             </div>
           )}
 
+          <form onSubmit={handlePasswordSignIn} noValidate>
+            <label className="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5" htmlFor="adminEmail">
+              Email
+            </label>
+            <input
+              id="adminEmail"
+              type="email"
+              autoComplete="username"
+              placeholder="admin@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full mb-4 bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-brand-orange transition"
+            />
+
+            <label className="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5" htmlFor="adminPassword">
+              Password
+            </label>
+            <input
+              id="adminPassword"
+              type="password"
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full mb-5 bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-brand-orange transition"
+            />
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-brand-orange text-white font-semibold rounded-lg py-3 hover:brightness-110 transition shadow-lg shadow-brand-orange/20 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Signing in…' : 'Sign in'}
+            </button>
+          </form>
+
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 border-t border-slate-800"></div>
+            <span className="text-slate-500 text-xs uppercase tracking-wider">or</span>
+            <div className="flex-1 border-t border-slate-800"></div>
+          </div>
+
           <button
             type="button"
-            onClick={handleSignIn}
+            onClick={handleGoogleSignIn}
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 bg-white text-slate-900 font-semibold rounded-lg py-3 hover:bg-slate-100 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
@@ -100,7 +189,7 @@ export default function AdminLogin() {
                 d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.6 5.5C41.5 36.2 44 30.6 44 24c0-1.2-.1-2.4-.4-3.5z"
               />
             </svg>
-            {loading ? 'Signing in…' : 'Sign in with Google'}
+            Sign in with Google
           </button>
 
           <p className="text-slate-500 text-xs text-center mt-6">Access is restricted to authorized admin accounts only.</p>
